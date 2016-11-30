@@ -29,7 +29,7 @@ public class GameController {
     // Previous position after black played. For "ko rule".
     private HashMap<PointOnBoard, StoneColor> previousBlackPosition;
     private HashMap<PointOnBoard, StoneColor> previousWhitePosition;
-
+    private boolean passedPreviously;
     /**
      * True if any stone was removed this turn.
      */
@@ -57,6 +57,17 @@ public class GameController {
         }
     }
 
+    /**
+     * Passes the turn
+     * 
+     */
+    public void pass() {
+
+        savePosition();
+        lastMove = null;
+        passedPreviously = true;
+
+    }
 
     /**
      * Processes input and handles game logic. 
@@ -79,6 +90,18 @@ public class GameController {
         removedStone = false;
         addStone(newStone);
 
+        // Suicide is legal if you remove enemy stones with it.
+        if (!removedStone && isSuicide(newStone)) {
+            return false;
+        }
+        // "ko rule": previous position can't be repeated
+        if ((isBlackMove && previousBlackPosition.equals(stones))
+                || (!isBlackMove && previousWhitePosition.equals(stones))) {
+            stones = previousBlackPosition;
+            return false;
+        }
+    
+        savePosition();
 
         changePlayer();
         lastMove = newStone;
@@ -87,8 +110,32 @@ public class GameController {
 
     }
 
+    /**
+     * We can check the 'ko' rule if we save previous position
+     */
+    private void savePosition() {
+        if (isBlackMove) {
+            previousBlackPosition = new HashMap<>(stones);
+        } else {
+            previousWhitePosition = new HashMap<>(stones);
+        }
+    }
 
 
+    /**
+     * Returns true (and removes the Stone) if the move is suicide. You need to
+     * actually add the stone first.
+     * 
+     * @param PointOnBoard
+     * @return true if the move is suicide
+     */
+    private boolean isSuicide(PointOnBoard point) {
+        if (isDead(point, new HashSet<PointOnBoard>())) {
+            removeStone(point);
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Adds Stone and removes dead neighbors.

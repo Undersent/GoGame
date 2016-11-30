@@ -50,13 +50,13 @@ public class GameControllerTest {
 		
 		  LinkedList<PointOnBoard> black = new LinkedList<PointOnBoard>();
 		  LinkedList<PointOnBoard> white = new LinkedList<PointOnBoard>();
-		  for (PointOnBoard gp : gameController.getAllPoints()) {
-			  GameController.StoneColor stoneColor = gameController.getColor(gp);
+		  for (PointOnBoard point : gameController.getAllPoints()) {
+			  GameController.StoneColor stoneColor = gameController.getColor(point);
 	            if (stoneColor != GameController.StoneColor.NONE) {
 	                if (stoneColor == GameController.StoneColor.BLACK) {
-	                 black.add(gp);
+	                 black.add(point);
 	                } else {
-	                	 white.add(gp);
+	                	 white.add(point);
 	                }
 	            }
 	        }
