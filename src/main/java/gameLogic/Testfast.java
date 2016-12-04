@@ -1,15 +1,13 @@
 package gameLogic;
 
-import java.util.LinkedList;
-
-import gameLogic.GameController.StoneColor;
+import bots.JustPut;
 
 public class Testfast {
 
 	public static void main(String[] args) {
 		
-		
-		GameBoard gameBoard = new GameBoard(9);
+	/*	
+		//GameBoard gameBoard = new GameBoard(9);
 		GameController gameController = gameBoard.getGameState();
 		 int row = Math.round((float) (5));
 		 int col = Math.round((float) (5));
@@ -34,7 +32,20 @@ public class Testfast {
 	        }
 		  System.out.println(czarne.toString());
 		
-		
+		*/
+	//	Adapter adapter;
+		Adapter adapter = new Adapter();
+		 adapter.initializeBoard(19);
+		 adapter.playOnPoint(0, 0);
+			adapter.playOnPoint(1, 1);
+			adapter.playOnPoint(2, 2);
+			
+		JustPut bot = new JustPut(adapter);
+		System.out.println(adapter.getAllColoredPoints().toString());
+		System.out.println(adapter.getAllPoints().toString());
+		System.out.println(adapter.getBlackPoints().toString());
+		bot.findBestMove();
+		System.out.println(adapter.getAllColoredPoints().toString());
 	
 	}
 
