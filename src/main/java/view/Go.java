@@ -47,16 +47,6 @@ public class Go extends Application {
 	 
 	    @Override
 	    public void start(Stage primaryStage) {
-	    	try {
-				client = new GoClient();
-		    	client.sendBoardSize(gridSize);
-		    	client.play();
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				System.out.println("Nie udalo polaczyc sie z serwerem");
-			}
-	    	adapter = new Adapter();
-	    	adapter.initializeBoard(gridSize);
 	    	Rectangle2D screenBounds = Screen.getPrimary().getBounds();
 	        primaryStage.setTitle("Go Game");
 	        primaryStage.setResizable(false);
@@ -105,6 +95,7 @@ public class Go extends Application {
 	        
 	        primaryStage.setScene(new Scene(borderPane));
 	        primaryStage.show();
+
 	    }
 
 	    private void drawGrid(GraphicsContext gc) {
@@ -122,18 +113,7 @@ public class Go extends Application {
 	        		gc.fillOval((margin + i*gridWidth - 4), (margin + 15*gridWidth - 4), 8, 8);
 	        	}
 	        }
-	        for(PointOnBoard point: adapter.getBlackPoints()) {
-	        	gc.fillOval(1 + point.getCol()*gridWidth, 1 + point.getRow()*gridWidth, gridWidth, gridWidth);
-	        }
-	        gc.setFill(Color.WHITE);
-	        for(PointOnBoard point: adapter.getWhitePoints()) {
-	        	gc.fillOval(1 + point.getCol()*gridWidth, 1 + point.getRow()*gridWidth, gridWidth, gridWidth);
-	        }
-	    	for(Stone stone: stones) {
-	    		    gc.setFill(stone.getFillColor());
-	    			gc.fillOval(stone.getX(), stone.getY(), stone.getW(), stone.getH());
 
-	    	}
 	    }
 
 		public static void drawDrid(String points) {

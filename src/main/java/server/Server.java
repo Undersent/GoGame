@@ -21,7 +21,7 @@ public class Server {
     	int port = 8901;
         ServerSocket listener = new ServerSocket(port);
         System.out.println("Go Server is Running");
-       
+        int size =9;
         try {
             while (true) {
                 Player playerB = new Player(listener.accept(), 'B');
