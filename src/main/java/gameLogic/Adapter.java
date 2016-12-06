@@ -1,11 +1,16 @@
 package gameLogic;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 import gameLogic.GameController.StoneColor;
 
-public class Adapter {
+public class Adapter implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 593744289599985759L;
 	private LinkedList<PointOnBoard> blackPoints = new LinkedList<PointOnBoard>();
 	private LinkedList<PointOnBoard> whitePoints = new LinkedList<PointOnBoard>();
 	private LinkedList<PointOnBoard> coloredPoints = new LinkedList<PointOnBoard>();
@@ -18,7 +23,7 @@ public class Adapter {
 		  gameController = new GameController(size);
 	  }
 	
-	  public boolean playOnPoint(int row, int col)
+	  public synchronized boolean playOnPoint(int row, int col)
 	  {
 		  return gameController.playAt(row, col);
 	  }
@@ -64,6 +69,11 @@ public class Adapter {
 	        return gameController.getAllPoints();
 	    }
 	  
+	  public char getPlayer()
+	  {
+		  return gameController.getPlayer();
+	  }
+	  
 
 	  
 	  public GameController getGame(){
@@ -73,4 +83,19 @@ public class Adapter {
 	  public StoneColor getColor(PointOnBoard pointOnBoard) {
 	        return gameController.getColor(pointOnBoard);
 	    }
+	  
+	  public String toString(){
+		  String text ="";
+		  for(PointOnBoard pob : getBlackPoints()){
+			  text+= pob.toString();
+		  }
+		  text+="B";
+		  
+		  for(PointOnBoard pob : getWhitePoints()){
+			  text+= pob.toString();
+		  }
+		  
+		return null;
+		  
+	  }
 }

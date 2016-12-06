@@ -238,6 +238,11 @@ public class GameController {
     private void changePlayer() {
         isBlackMove = !isBlackMove;
     }
+    
+    public char getPlayer()
+    {
+    	return isBlackMove ? 'B' : 'W';
+    }
 
     public Iterable<PointOnBoard> getAllPoints() {
         return stones.keySet();  

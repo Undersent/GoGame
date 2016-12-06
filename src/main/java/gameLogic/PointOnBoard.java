@@ -46,6 +46,6 @@ public final class PointOnBoard {
 
     @Override
     public String toString() {
-        return "PointOnBoard [row=" + row + ", col=" + col + "]";
+        return row + "," + col + ";";
     }
 }
