@@ -46,7 +46,7 @@ public class GameController {
     }
 
     /**
-     * Initializes the game map with empty PointOnBoard(s).
+     * Initializes the game map with empty PointOnBoard's.
      */
     private void initializeBoard() {
         stones = new HashMap<>();
@@ -240,11 +240,11 @@ public class GameController {
     }
 
     public Iterable<PointOnBoard> getAllPoints() {
-        return stones.keySet();
+        return stones.keySet();  
     }
 
-    public StoneColor getColor(PointOnBoard gp) {
-        return stones.get(gp);
+    public StoneColor getColor(PointOnBoard pointOnBoard) {
+        return stones.get(pointOnBoard);
     }
     
     /**

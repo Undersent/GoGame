@@ -1,5 +1,6 @@
 package gameLogic;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import gameLogic.GameController.StoneColor;
@@ -24,6 +25,7 @@ public class Adapter {
 	
 	  public LinkedList<PointOnBoard> getBlackPoints()
 	  {
+		  blackPoints=new LinkedList<PointOnBoard>();
 		  for (PointOnBoard point : gameController.getAllPoints()) {
 			  GameController.StoneColor stoneColor = gameController.getColor(point);
 	            if (stoneColor != GameController.StoneColor.NONE) {
@@ -37,6 +39,7 @@ public class Adapter {
 	  
 	  public LinkedList<PointOnBoard> getWhitePoints()
 	  {
+		  whitePoints=new LinkedList<PointOnBoard>();
 		  for (PointOnBoard point : gameController.getAllPoints()) {
 			  GameController.StoneColor stoneColor = gameController.getColor(point);
 	            if (stoneColor != GameController.StoneColor.NONE) {
@@ -45,17 +48,29 @@ public class Adapter {
 	                } 
 	            }
 	        }
-		  return blackPoints;
+		  return whitePoints;
 	  }
 	  
-	  public LinkedList<PointOnBoard> getAllColoredPoints()
-	  {
+	  public LinkedList<PointOnBoard> getAllColoredPoints(){
+		  coloredPoints = new LinkedList<PointOnBoard>();
 		  coloredPoints.addAll(getBlackPoints());
 		  coloredPoints.addAll(getWhitePoints());
-		return coloredPoints;
+		  return coloredPoints;
+		  
 	  }
+	  
+	  public Iterable<PointOnBoard> getAllPoints() {
+
+	        return gameController.getAllPoints();
+	    }
+	  
+
 	  
 	  public GameController getGame(){
 		  return gameController;
 	  }
+	  
+	  public StoneColor getColor(PointOnBoard pointOnBoard) {
+	        return gameController.getColor(pointOnBoard);
+	    }
 }

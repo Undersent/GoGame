@@ -12,19 +12,21 @@ public class JustPut implements Strategy {
 	private Adapter adapter;
 	private GameController game;
 	
-	JustPut(){
-		adapter = new Adapter();
-		game = adapter.getGame();
+	public JustPut(Adapter adapter){
+		this.adapter=adapter;
+		//game = adapter.getGame();
 	}
 	
 	@Override
 	public void findBestMove() {
 		StoneColor stoneColor = null;
-		LinkedList<PointOnBoard> coloredPoints = new LinkedList<PointOnBoard>();
-		for(PointOnBoard point : game.getAllPoints()){
-			stoneColor = game.getColor(point);
+	//	LinkedList<PointOnBoard> coloredPoints = new LinkedList<PointOnBoard>();
+	//	coloredPoints = adapter.getAllPoints();
+		System.out.println(adapter.getAllPoints().toString());
+		for(PointOnBoard point : adapter.getAllPoints()){
+			stoneColor = adapter.getColor(point);
 			if (stoneColor.equals(GameController.StoneColor.NONE)) {
-				if(game.playAt(point.getRow(), point.getCol())){
+				if(adapter.playOnPoint(point.getRow(), point.getCol())){
 					break;			
 				}else
 					continue;
