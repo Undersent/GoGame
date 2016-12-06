@@ -17,12 +17,22 @@ public class Adapter implements Serializable {
 	private GameController gameController;
 	private StoneColor stone;
 	
-
+	  /**
+	   * 
+	   * @param size of the board size x size 
+	   * 
+	   */
 	  public void initializeBoard(int size)
 	  {
 		  gameController = new GameController(size);
 	  }
-	
+
+	  /**
+	   * Processes input and handles game logic. 
+	   * @param row of the board
+	   * @param col of the board
+	   * @return true if move is possible else false (eyes, same move as previous)
+	   */
 	  public synchronized boolean playOnPoint(int row, int col)
 	  {
 		  return gameController.playAt(row, col);
@@ -74,6 +84,10 @@ public class Adapter implements Serializable {
 		  return gameController.getPlayer();
 	  }
 	  
+	  public void pass(){
+		  gameController.pass();
+	  }
+	  
 
 	  
 	  public GameController getGame(){
@@ -83,7 +97,10 @@ public class Adapter implements Serializable {
 	  public StoneColor getColor(PointOnBoard pointOnBoard) {
 	        return gameController.getColor(pointOnBoard);
 	    }
-	  
+	  /**
+	   * It is necessary to send easy interpretable messages to client 
+	   */
+	  @Override
 	  public String toString(){
 		  String text ="";
 		  for(PointOnBoard pob : getBlackPoints()){
@@ -95,7 +112,7 @@ public class Adapter implements Serializable {
 			  text+= pob.toString();
 		  }
 		  
-		return null;
+		return text;
 		  
 	  }
 }

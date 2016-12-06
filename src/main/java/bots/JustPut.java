@@ -17,6 +17,9 @@ public class JustPut implements Strategy {
 		//game = adapter.getGame();
 	}
 	
+	/**
+	 * Function which find just first possible position and put there point
+	 */
 	@Override
 	public void findBestMove() {
 		StoneColor stoneColor = null;

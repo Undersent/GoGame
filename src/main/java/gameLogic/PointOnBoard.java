@@ -2,13 +2,13 @@ package gameLogic;
 
 public final class PointOnBoard {
 
-	 private final int row;
-	 private final int col;
+	private final int row;
+	private final int col;
 
-	    public PointOnBoard(int row, int col) {
-	        this.row = row;
-	        this.col = col;
-	    }
+	public PointOnBoard(int row, int col) {
+	    this.row = row;
+	    this.col = col;
+	}
     
     public int getRow() {
         return row;
@@ -27,7 +27,9 @@ public final class PointOnBoard {
         result = prime * result + row;
         return result;
     }
-
+    /**
+     * Important for hashArrays
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

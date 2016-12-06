@@ -39,7 +39,10 @@ public class Testfast {
 		 adapter.playOnPoint(0, 0);
 			adapter.playOnPoint(1, 1);
 			adapter.playOnPoint(2, 2);
-			System.out.println(adapter.getBlackPoints().get(0).toString());
+			adapter.playOnPoint(3, 2);
+			adapter.playOnPoint(4, 2);
+			
+			System.out.println(adapter.toString());
 			
 			
 		JustPut bot = new JustPut(adapter);

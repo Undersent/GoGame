@@ -81,9 +81,17 @@ public class GameControllerTest {
 	@Test
 	public void passTest(){
 		gameController.playAt(0,1);
+		assertEquals(gameController.getPlayer(),'W');
 		gameController.playAt(0,8);
+		assertEquals(gameController.getPlayer(),'B');
 		gameController.pass();
-		assertEquals(gameController.getLastMove(),null);
+		assertEquals(gameController.getPlayer(),'W');
+		gameController.playAt(2, 2);
+		assertEquals(gameController.getPlayer(),'B');
+		gameController.pass();
+		gameController.playAt(0,5);
+		assertEquals(gameController.getPlayer(),'B');
+
 	}
 	
 
