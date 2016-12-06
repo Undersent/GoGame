@@ -103,6 +103,7 @@ public class Player extends Thread {
                 	
                 	} else if ( command.startsWith("PASS")){
                 		adapter.pass();
+                		output.println("MESSAGE Pass");
                 	}
                 	
             }
