@@ -8,6 +8,7 @@ import java.util.ListIterator;
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -17,8 +18,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Shape;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class Go extends Application {
@@ -41,7 +44,9 @@ public class Go extends Application {
 	 
 	    @Override
 	    public void start(Stage primaryStage) {
+	    	Rectangle2D screenBounds = Screen.getPrimary().getBounds();
 	        primaryStage.setTitle("Go Game");
+	        primaryStage.setResizable(false);
 	        BorderPane borderPane = new BorderPane();
 	        
 	        Canvas canvas = new Canvas(800,800);
@@ -53,8 +58,8 @@ public class Go extends Application {
 	        		drawGrid(gc);
 	        		int x = (int) e.getX()/gridWidth;
 	        		int y = (int) e.getY()/gridWidth;
-					gc.setFill(currentColor);
-					gc.fillOval(1 + x*gridWidth, 1 + y*gridWidth, gridWidth, gridWidth);
+					gc.setStroke(currentColor);
+					gc.strokeOval(1 + x*gridWidth, 1 + y*gridWidth, gridWidth, gridWidth);
 				}
 	        });
 	        
@@ -63,7 +68,13 @@ public class Go extends Application {
 				public void handle(MouseEvent e) {
 					int x = (int) e.getX()/gridWidth;
 	        		int y = (int) e.getY()/gridWidth;
-	        		stones.add(new Stone(1 + x*gridWidth, 1 + y*gridWidth, gridWidth, gridWidth));
+	        		Paint fillColor = currentColor;
+	        		stones.add(new Stone(1 + x*gridWidth, 1 + y*gridWidth, gridWidth, gridWidth, fillColor));
+	        		if(currentColor == Color.BLACK) {
+	        			currentColor = Color.WHITE;
+	        		} else {
+	        			currentColor = Color.BLACK;
+	        		}
 	        		drawGrid(gc);
 				}
 	        	
@@ -106,7 +117,9 @@ public class Go extends Application {
 	        	}
 	        }
 	    	for(Stone stone: stones) {
+	    		    gc.setFill(stone.getFillColor());
 	    			gc.fillOval(stone.getX(), stone.getY(), stone.getW(), stone.getH());
+
 	    	}
 	    }
 }
