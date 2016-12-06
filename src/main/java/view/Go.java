@@ -1,11 +1,13 @@
 package view;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
+import com.sun.prism.shader.DrawCircle_LinearGradient_PAD_AlphaTest_Loader;
+
+import client.GoClient;
+import gameLogic.Adapter;
+import gameLogic.PointOnBoard;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
@@ -19,16 +21,17 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Ellipse;
-import javafx.scene.shape.Shape;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class Go extends Application {
-
+		private Adapter adapter;
+	
 		private List<Stone> stones = new ArrayList<Stone>();
 	
-		private GraphicsContext gc;
+		private GoClient client;
+		
+		private static GraphicsContext gc;
 		private Label test;
 		private Label test2;
 		
@@ -44,6 +47,16 @@ public class Go extends Application {
 	 
 	    @Override
 	    public void start(Stage primaryStage) {
+	    	try {
+				client = new GoClient();
+		    	client.sendBoardSize(gridSize);
+		    	client.play();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				System.out.println("Nie udalo polaczyc sie z serwerem");
+			}
+	    	adapter = new Adapter();
+	    	adapter.initializeBoard(gridSize);
 	    	Rectangle2D screenBounds = Screen.getPrimary().getBounds();
 	        primaryStage.setTitle("Go Game");
 	        primaryStage.setResizable(false);
@@ -68,14 +81,7 @@ public class Go extends Application {
 				public void handle(MouseEvent e) {
 					int x = (int) e.getX()/gridWidth;
 	        		int y = (int) e.getY()/gridWidth;
-	        		Paint fillColor = currentColor;
-	        		stones.add(new Stone(1 + x*gridWidth, 1 + y*gridWidth, gridWidth, gridWidth, fillColor));
-	        		if(currentColor == Color.BLACK) {
-	        			currentColor = Color.WHITE;
-	        		} else {
-	        			currentColor = Color.BLACK;
-	        		}
-	        		drawGrid(gc);
+	        		client.makeMove(y, x);
 				}
 	        	
 	        });
@@ -116,10 +122,23 @@ public class Go extends Application {
 	        		gc.fillOval((margin + i*gridWidth - 4), (margin + 15*gridWidth - 4), 8, 8);
 	        	}
 	        }
+	        for(PointOnBoard point: adapter.getBlackPoints()) {
+	        	gc.fillOval(1 + point.getCol()*gridWidth, 1 + point.getRow()*gridWidth, gridWidth, gridWidth);
+	        }
+	        gc.setFill(Color.WHITE);
+	        for(PointOnBoard point: adapter.getWhitePoints()) {
+	        	gc.fillOval(1 + point.getCol()*gridWidth, 1 + point.getRow()*gridWidth, gridWidth, gridWidth);
+	        }
 	    	for(Stone stone: stones) {
 	    		    gc.setFill(stone.getFillColor());
 	    			gc.fillOval(stone.getX(), stone.getY(), stone.getW(), stone.getH());
 
 	    	}
 	    }
+
+		public static void drawDrid(String points) {
+			int endOfBlackPoints = points.indexOf('B') - 1;
+			String[] blackPoints = points.substring(0, endOfBlackPoints).split(",");
+			String[] whitePoints = points.substring(endOfBlackPoints + 1, points.length()).split(",");
+		}
 }
