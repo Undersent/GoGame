@@ -33,7 +33,7 @@ public class Player extends Thread {
     public Player(Socket socket, char mark, int size) {
     	
     	adapter = new Adapter();
-    
+    	adapter.initializeBoard(19);
     	
         this.socket = socket;
         this.mark = mark;
@@ -70,9 +70,7 @@ public class Player extends Thread {
         	}
             // The thread is only started after everyone connects.
         	
-        	if (command.startsWith("SIZE")){
-        		adapter.initializeBoard(Integer.parseInt(command.substring(5)));
-        	}
+       
             output.println("MESSAGE All players connected");
          
             // Tell the first player that it is her turn.
@@ -84,9 +82,17 @@ public class Player extends Thread {
             // Repeatedly get commands from the client and process them.
             while (true) {
             	command = input.readLine(); //row and col
+            	
+             	if (command.startsWith("SIZE")){
+            		adapter.initializeBoard(Integer.parseInt(command.substring(5)));
+            	}
+            	
+            	System.out.println(command);
                 if (command.startsWith("MOVE")) {
                     int row = Integer.parseInt(command.substring(5, command.indexOf(',')));
-                    int col = Integer.parseInt(command.substring(command.indexOf(',')));
+                    System.out.println(row);
+                    int col = Integer.parseInt(command.substring(command.indexOf(',') + 1));
+                    System.out.println(col);
                     if (adapter.playOnPoint(row, col) && mark == adapter.getPlayer()) {
                         output.println("POINTS "+adapter.toString());
                   

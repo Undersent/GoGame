@@ -24,6 +24,7 @@ public class Server {
         int size =9;
         try {
             while (true) {
+            
                 Player playerB = new Player(listener.accept(), 'B', size);
                 Player playerW = new Player(listener.accept(), 'W', size );
                 playerB.setOpponent(playerW);
