@@ -40,21 +40,23 @@ public class GoClient extends Application {
 	
 	public GoClient() throws Exception {
 		//Setup networking
+		System.out.println(3);
 		socket = new Socket(SERVER_ADDRESS, PORT);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new PrintWriter(socket.getOutputStream(), true);
 	}
 	
     public static void main(String[] args) throws Exception {
-        launch(args);
+    	System.out.println(1);
         
-        GoClient client = new GoClient();
-        client.sendBoardSize();
-        client.play();
+        System.out.println(2);
+
+        
+        launch(args);
     }
  
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws Exception {System.out.println(4);
     	Rectangle2D screenBounds = Screen.getPrimary().getBounds();
         primaryStage.setTitle("Go Game");
         primaryStage.setResizable(false);
@@ -102,6 +104,9 @@ public class GoClient extends Application {
         
         primaryStage.setScene(new Scene(borderPane));
         primaryStage.show();
+        
+        GoClient client = new GoClient();
+        client.play();
     }
 
     private void drawGrid(GraphicsContext gc) {
@@ -125,17 +130,19 @@ public class GoClient extends Application {
 		String response;
 		
 		try {
-			response = in.readLine();
-			
-			if(response.startsWith("WELCOME")) {
-				//TODO co sie ma dziac po polaczeniu klienta
-			}
+			   response = in.readLine();
+	            if (response.startsWith("WELCOME")) {
+	                System.out.println(response);
+	            }
 			
 			while(true) {
 				response = in.readLine();
 				if(response.startsWith("POINTS")) {
 					System.out.println("dostalem punkty");
 				}
+				 else if (response.startsWith("MESSAGE")) {
+	                    System.out.println(response.substring(8));
+	                }
 			}
 		}
 		

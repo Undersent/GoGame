@@ -1,21 +1,12 @@
 package server;
 
 
-import java.awt.Color;
-import java.awt.GridLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import java.util.Scanner;
 
 /**
  * A client for the TicTacToe game, modified and extended from the
@@ -41,7 +32,7 @@ public class TestServer {
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
-
+    int i=0;
     /**
      * Constructs the client by connecting to a server, laying out the
      * GUI and registering GUI listeners.
@@ -70,23 +61,48 @@ public class TestServer {
      * message is recevied then the loop will exit and the server
      * will be sent a "QUIT" message also.
      */
-    public void play() throws Exception {
+  /*  public void play() throws Exception {
         String response;
         try {
             response = in.readLine();
        //     System.out.println(response);
-            System.out.println("heja");
-
+            i++;
+            System.out.println(i);
+            Scanner odczyt = new Scanner(System.in);
+            boolean condition = false;
             while (true) {
-            	out.println("123");
-                response = in.readLine();
+            	//out.println("123");
+            	
+                String text = odczyt.nextLine();
                 	if(response.startsWith("MESSAGE")) {
-                    System.out.println(response.substring(8));
-                    
+                    System.out.println(response.substring(8));                    
                 }
-      
+                	if(text.startsWith("MOVE")){
+                		out.println(text);
+                	}
             }
             
+        }
+        finally {
+            socket.close();
+        }
+    }*/
+    
+    public void play() throws Exception {
+        String response;
+        try {
+            response = in.readLine();
+            if (response.startsWith("WELCOME")) {
+            	System.out.println("welcome");
+            
+            }
+            while (true) {
+                response = in.readLine();
+             if (response.startsWith("MESSAGE")) {
+                    System.out.println(response.substring(8));
+                }
+            }
+          
         }
         finally {
             socket.close();
@@ -102,9 +118,28 @@ public class TestServer {
     public static void main(String[] args) throws Exception {
         while (true) {
             String serverAddress = (args.length == 0) ? "localhost" : args[1];
+            System.out.println(serverAddress);
             TestServer client = new TestServer(serverAddress);
 
             client.play();
+            
+        /*	int port = 8901;
+            ServerSocket listener = new ServerSocket(port);
+            System.out.println("Go Server is Running");
+            int size =9;
+            try {
+                while (true) {
+                    Player playerB = new Player(listener.accept(), 'B');
+                    Player playerW = new Player(listener.accept(), 'W' );
+                    playerB.setOpponent(playerW);
+                    playerW.setOpponent(playerB);
+                    playerB.start();
+                    playerW.start();
+                }
+            } finally {
+                listener.close();
+            }
+            */
 
         }
     }
