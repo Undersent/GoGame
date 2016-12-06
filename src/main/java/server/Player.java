@@ -30,11 +30,11 @@ public class Player extends Thread {
      * initializes the stream fields, displays the first two
      * welcoming messages.
      */
-    public Player(Socket socket, char mark, int size) {
+    public Player(Socket socket, char mark) {
     	
     	adapter = new Adapter();
     
-    	
+    	System.out.println("Konstruktor");
         this.socket = socket;
         this.mark = mark;
         try {
@@ -63,6 +63,7 @@ public class Player extends Thread {
      */
     public void run() {
         try {
+        	System.out.println("run");
         	String command = input.readLine();
         	if(command.startsWith("BOT")){
         	bot = new JustPut(adapter);
@@ -73,17 +74,20 @@ public class Player extends Thread {
         	if (command.startsWith("SIZE")){
         		adapter.initializeBoard(Integer.parseInt(command.substring(5)));
         	}
-            output.println("MESSAGE All players connected");
+        
          
             // Tell the first player that it is her turn.
             if (mark == 'B') {
+                output.println("MESSAGE All players connected");
                 output.println("MESSAGE Your move");
  
             }
 
             // Repeatedly get commands from the client and process them.
-            while (true) {
-            	command = input.readLine(); //row and col
+            while (true) { 
+            	command = input.readLine(); //row and col 
+         
+            	
                 if (command.startsWith("MOVE")) {
                     int row = Integer.parseInt(command.substring(5, command.indexOf(',')));
                     int col = Integer.parseInt(command.substring(command.indexOf(',')));

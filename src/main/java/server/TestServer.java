@@ -78,10 +78,11 @@ public class TestServer {
             System.out.println("heja");
 
             while (true) {
-              
+            	out.println("123");
                 response = in.readLine();
                 	if(response.startsWith("MESSAGE")) {
                     System.out.println(response.substring(8));
+                    
                 }
       
             }

@@ -21,11 +21,11 @@ public class Server {
     	int port = 8901;
         ServerSocket listener = new ServerSocket(port);
         System.out.println("Go Server is Running");
-        int size =9;
+       
         try {
             while (true) {
-                Player playerB = new Player(listener.accept(), 'B', size);
-                Player playerW = new Player(listener.accept(), 'W', size );
+                Player playerB = new Player(listener.accept(), 'B');
+                Player playerW = new Player(listener.accept(), 'W' );
                 playerB.setOpponent(playerW);
                 playerW.setOpponent(playerB);
                 playerB.start();
