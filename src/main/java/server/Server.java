@@ -1,12 +1,6 @@
 package server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
-import java.net.Socket;
-
 
 import gameLogic.Adapter;
 
@@ -21,13 +15,15 @@ public class Server {
     	int port = 8901;
         ServerSocket listener = new ServerSocket(port);
         System.out.println("Go Server is Running");
-        int size =9;
         try {
             while (true) {
-                Player playerB = new Player(listener.accept(), 'B');
-                Player playerW = new Player(listener.accept(), 'W' );
+               	Adapter adapter = new Adapter();
+               	adapter.initializeBoard(19);
+                Player playerB = new Player(listener.accept(), 'B', adapter);
+                Player playerW = new Player(listener.accept(), 'W', adapter );
                 playerB.setOpponent(playerW);
                 playerW.setOpponent(playerB);
+          
                 playerB.start();
                 playerW.start();
             }

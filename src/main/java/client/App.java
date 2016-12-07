@@ -22,8 +22,6 @@ import network.Server;
 public class App extends Application {
 
 	private static GraphicsContext gc;
-	private Label test;
-	private Label test2;
 	
 	private int gridWidth = 42;
 	private int margin = 22;
@@ -32,6 +30,9 @@ public class App extends Application {
 	private boolean isServer = false;
 	
 	private NetworkConnection connection = isServer ? createServer() : createClient();
+	
+	String[] blackPoints;
+	String[] whitePoints;
 	
 	@Override
 	public void init() throws Exception {
@@ -53,8 +54,7 @@ public class App extends Application {
         gc = canvas.getGraphicsContext2D();
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
         	public void handle(MouseEvent e) {
-        		test.setText(String.valueOf(e.getX()));
-        		test2.setText(String.valueOf(e.getY()));
+
         		drawGrid(gc);
         		int x = (int) e.getX()/gridWidth;
         		int y = (int) e.getY()/gridWidth;
@@ -80,20 +80,6 @@ public class App extends Application {
         drawGrid(gc);
         borderPane.setCenter(canvas);
         
-        VBox left = new VBox();
-        left.setPrefWidth(320);
-        borderPane.setLeft(left);
-        
-        VBox right = new VBox();
-        right.setPrefWidth(320);
-        borderPane.setRight(right);
-        
-        test = new Label("");
-        right.getChildren().add(test);
-        
-        test2 = new Label("");
-        right.getChildren().add(test2);
-        
         primaryStage.setScene(new Scene(borderPane));
         primaryStage.show();
     }
@@ -111,6 +97,29 @@ public class App extends Application {
         		gc.fillOval((margin + i*gridWidth - 4), (margin + 3*gridWidth - 4), 8, 8);
         		gc.fillOval((margin + i*gridWidth - 4), (margin + 9*gridWidth - 4), 8, 8);
         		gc.fillOval((margin + i*gridWidth - 4), (margin + 15*gridWidth - 4), 8, 8);
+        	}
+        }
+        String[] point = null;
+        if(blackPoints != null) {
+        	for(int i=0; i<blackPoints.length;i++) {
+        		gc.setFill(Color.BLACK);
+        		point = blackPoints[i].split(",");
+        		if(point != null) {
+	        		int y=Integer.parseInt(point[0]);
+	        		int x=Integer.parseInt(point[1]);
+	        		gc.fillOval(1 + x*gridWidth, 1 + y*gridWidth, gridWidth, gridWidth);
+        		}
+        	}
+        }
+        if(whitePoints != null) {
+        	for(int i=0; i<whitePoints.length;i++) {
+        		gc.setFill(Color.WHITE);
+        		point = whitePoints[i].split(",");
+        		if(!point[0].equals("") && !point[1].equals("")) {
+	        		int y=Integer.parseInt(point[0]);
+	        		int x=Integer.parseInt(point[1]);
+	        		gc.fillOval(1 + x*gridWidth, 1 + y*gridWidth, gridWidth, gridWidth);
+        		}
         	}
         }
     }
@@ -137,6 +146,9 @@ public class App extends Application {
 			return new Client("localhost", 8901, data -> {
 				Platform.runLater(() -> {
 					System.out.println(data.toString());
+					if(data.toString().startsWith("POINTS")) {
+						updatePoints(data.toString().substring(7));
+					}
 				});
 			});
 		} catch (Exception e) {
@@ -144,4 +156,11 @@ public class App extends Application {
 		}
 	}
 
+	public void updatePoints(String points) {
+		int endOfBlackPoints = points.indexOf('B') - 1;
+		blackPoints = points.substring(0, endOfBlackPoints).split(";");
+		whitePoints = points.substring(endOfBlackPoints + 2).split(";");
+		drawGrid(gc);
+	}
+	
 }

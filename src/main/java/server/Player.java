@@ -1,16 +1,11 @@
 package server;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-
 import bots.JustPut;
 import gameLogic.Adapter;
-
-
-
 //GAME - PLAYER
 /**
  * A two-player game.
@@ -24,16 +19,15 @@ public class Player extends Thread {
     private Adapter adapter;
     private JustPut bot;
     boolean isBot=false;
-
     /**
      * Constructs a handler thread for a given socket and mark
      * initializes the stream fields, displays the first two
      * welcoming messages.
      */
-    public Player(Socket socket, char mark) {
+    public Player(Socket socket, char mark, Adapter adapter) {
     	
-    	adapter = new Adapter();
-    	adapter.initializeBoard(19);
+    	this.adapter=adapter;
+    	
     	
         this.socket = socket;
         this.mark = mark;
@@ -47,16 +41,16 @@ public class Player extends Thread {
             System.out.println("Player died: " + e);
         }
     }
-
     /**
      * Accepts notification of who the opponent is.
      */
+    public void sendMessage(String command) {
+    	output.println(command);
+    }
+    
     public void setOpponent(Player opponent) {
         this.opponent = opponent;
     }
-
-
-
     /**
      * The run method of this thread.
      * Server sends few messages;
@@ -73,10 +67,8 @@ public class Player extends Thread {
         	*/
             // The thread is only started after everyone connects.
          
-
-
             // Repeatedly get commands from the client and process them.
-            while (true) {System.out.println("tutaj2");
+            while (true) {
             	String command = input.readLine(); //row and col
             	
           /*   	if (command.startsWith("SIZE")){
@@ -86,19 +78,14 @@ public class Player extends Thread {
             	System.out.println(command+ " "+ mark);
                 if (command.startsWith("MOVE")) {
                     int row = Integer.parseInt(command.substring(5, command.indexOf(',')));
-<<<<<<< HEAD
                     int col = Integer.parseInt(command.substring(command.indexOf(',')+1));
-                    if (adapter.playOnPoint(row, col) && mark == adapter.getPlayer()) {
-=======
-                //    System.out.println(row);
-                    int col = Integer.parseInt(command.substring(command.indexOf(',') + 1));
-                //    System.out.println(col);
+
                   if(mark == adapter.getPlayer()){
                     if (adapter.playOnPoint(row, col) ) {
-                    	System.out.println("rusza sie "+ adapter.getPlayer());
-                    	System.out.println("POINTS "+adapter.toString());
->>>>>>> branch 'master' of https://github.com/Undersent/GoGame.git
+                   
+                    	System.out.println("POINTS "+adapter.toString()+ " gracz "+ adapter.getPlayer());
                         output.println("POINTS "+adapter.toString());
+                        opponent.sendMessage("POINTS "+adapter.toString());
                         
                   
                     	}
@@ -126,5 +113,3 @@ public class Player extends Thread {
         }
     }
 }
-
-

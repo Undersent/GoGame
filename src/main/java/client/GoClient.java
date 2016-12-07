@@ -42,7 +42,7 @@ public class GoClient extends Application {
 	private int gridSize = 19;
 	
 	public GoClient() throws Exception {
-<<<<<<< HEAD
+
 		client = new Thread() {
 			@Override
 			public void run() {
@@ -65,7 +65,6 @@ public class GoClient extends Application {
 					e.printStackTrace();
 				}
 				try {
-					sendBoardSize();
 					play();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -74,27 +73,12 @@ public class GoClient extends Application {
 			}
 		};
 		client.start();
-=======
-		//Setup networking
-		System.out.println(3);
-		socket = new Socket(SERVER_ADDRESS, PORT);
-		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		out = new PrintWriter(socket.getOutputStream(), true);
->>>>>>> branch 'master' of https://github.com/Undersent/GoGame.git
+
 	}
 	
     public static void main(String[] args) throws Exception {
-<<<<<<< HEAD
         launch(args);
 
-=======
-    	System.out.println(1);
-        
-        System.out.println(2);
-
-        
-        launch(args);
->>>>>>> branch 'master' of https://github.com/Undersent/GoGame.git
     }
     
     @Override
@@ -172,19 +156,13 @@ public class GoClient extends Application {
 		String response;
 		
 		try {
-<<<<<<< HEAD
+
 			response = in.readLine();
 			
 			if(response.startsWith("WELCOME")) {
 				System.out.println("dostalem wiadomosc");
 			}
-=======
-			   response = in.readLine();
-	            if (response.startsWith("WELCOME")) {
-	                System.out.println(response);
-	            }
->>>>>>> branch 'master' of https://github.com/Undersent/GoGame.git
-			
+
 			while(true) {
 				response = in.readLine();
 				if(response.startsWith("POINTS")) {
