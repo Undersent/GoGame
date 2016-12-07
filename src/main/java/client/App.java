@@ -4,10 +4,13 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -29,6 +32,8 @@ public class App extends Application {
 	
 	private Image blackStone;
 	private Image whiteStone;
+	
+	private TextArea messages = new TextArea();
 	
 	private boolean isServer = false;
 	
@@ -61,6 +66,7 @@ public class App extends Application {
         
         Canvas canvas = new Canvas(height,height);
         gc = canvas.getGraphicsContext2D();
+        canvas.setCursor(Cursor.NONE);
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
         	public void handle(MouseEvent e) {
 
@@ -88,6 +94,25 @@ public class App extends Application {
         
         drawGrid(gc);
         borderPane.setCenter(canvas);
+        
+        messages.setPrefSize(250, height - 40);
+        TextField input = new TextField();
+        input.setOnAction(event -> {
+        	String message = input.getText();
+        	input.clear();
+        	
+        	try {
+				connection.send("CHAT " + message);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        	
+        	messages.appendText(message + "\n");
+        });
+        VBox chat = new VBox(20, messages, input);
+        chat.setPrefSize(250, height);
+        borderPane.setRight(chat);
         
         primaryStage.setScene(new Scene(borderPane));
         primaryStage.show();
@@ -159,6 +184,8 @@ public class App extends Application {
 					System.out.println(data.toString());
 					if(data.toString().startsWith("POINTS")) {
 						updatePoints(data.toString().substring(7));
+					} else if(data.toString().startsWith("CHAT")) {
+						messages.appendText(data.toString().substring(5) + "\n");
 					}
 				});
 			});

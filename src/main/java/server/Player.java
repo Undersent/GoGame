@@ -104,6 +104,8 @@ public class Player extends Thread {
 				} else if (command.startsWith("TERRITORY_W")){
 					int blankPoints = Integer.parseInt(command.substring(10));
 					output.println("TERRITORY_W "+ adapter.getBlackTerritory(blankPoints));
+				} else if (command.startsWith("CHAT")){
+					opponent.sendMessage(command);
 				}
  
 			}
