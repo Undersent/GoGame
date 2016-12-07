@@ -97,6 +97,15 @@ public class Adapter implements Serializable {
 	  public StoneColor getColor(PointOnBoard pointOnBoard) {
 	        return gameController.getColor(pointOnBoard);
 	    }
+	  
+	  public int getBlackTerritory(int blankPoints){
+		  int points = this.getBlackPoints().size() + blankPoints;
+		  return points;
+	  }
+	  
+	  public int getWhiteTerritory(int blankPoints){
+		  return this.getWhitePoints().size() + blankPoints;
+	  }
 	  /**
 	   * It is necessary to send easy interpretable messages to client 
 	   */

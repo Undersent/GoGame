@@ -9,7 +9,8 @@ public class Server {
 
 
     /**
-     * Runs the application. Pairs up clients that connect.
+     * Runs the application. Pairs up clients that connect. Runs two threads
+     * 
      */
     public static void main(String[] args) throws Exception {
     	int port = 8901;
@@ -19,7 +20,7 @@ public class Server {
             while (true) {
                	Adapter adapter = new Adapter();
                	adapter.initializeBoard(19);
-                Player playerB = new Player(listener.accept(), 'B', adapter);
+                Player playerB = new Player(listener.accept(), 'B', adapter );
                 Player playerW = new Player(listener.accept(), 'W', adapter );
                 playerB.setOpponent(playerW);
                 playerW.setOpponent(playerB);
