@@ -24,8 +24,11 @@ public class App extends Application {
 	private static GraphicsContext gc;
 	
 	private int gridWidth = 42;
-	private int margin = 22;
+	private int height;
 	private int gridSize = 19;
+	
+	private Image blackStone;
+	private Image whiteStone;
 	
 	private boolean isServer = false;
 	
@@ -46,11 +49,17 @@ public class App extends Application {
 	
     @Override
     public void start(Stage primaryStage) {
+    	Rectangle2D screen = Screen.getPrimary().getBounds();
+    	double firstHeight = screen.getHeight() * 0.6;
+    	gridWidth = (int) firstHeight/20;
+    	height = gridWidth * 20;
+    	System.out.println(gridWidth + "\n" + height);
+    	
         primaryStage.setTitle("Go Game");
         primaryStage.setResizable(false);
         BorderPane borderPane = new BorderPane();
         
-        Canvas canvas = new Canvas(800,800);
+        Canvas canvas = new Canvas(height,height);
         gc = canvas.getGraphicsContext2D();
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
         	public void handle(MouseEvent e) {
@@ -58,7 +67,7 @@ public class App extends Application {
         		drawGrid(gc);
         		int x = (int) e.getX()/gridWidth;
         		int y = (int) e.getY()/gridWidth;
-				gc.strokeOval(1 + x*gridWidth, 1 + y*gridWidth, gridWidth, gridWidth);
+				gc.strokeOval(gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth, gridWidth, gridWidth);
 			}
         });
         
@@ -82,21 +91,23 @@ public class App extends Application {
         
         primaryStage.setScene(new Scene(borderPane));
         primaryStage.show();
+        
+        blackStone = new Image("img/blackStone.png", gridWidth, gridWidth, false, false);
+        whiteStone = new Image("img/whiteStone.png", gridWidth, gridWidth, false, false);
     }
 
     private void drawGrid(GraphicsContext gc) {
     	gc.setFill(Color.BLACK);
-    	gc.fillRect(0, 0, 800, 800);
-    	gc.drawImage(new Image("img/go_board.jpg", 800, 800, false, false), 0, 0);
+    	gc.drawImage(new Image("img/go_board.jpg", height, height, false, false), 0, 0);
     	gc.setStroke(Color.BLACK);
         gc.setLineWidth(2);
         for(int i=0; i <= gridSize ; i++) {
-        	gc.strokeLine((margin + i*gridWidth), margin, (margin + i*gridWidth), 778);
-        	gc.strokeLine(margin, (margin + i*gridWidth), 778, (margin + i*gridWidth));
+        	gc.strokeLine((gridWidth + i*gridWidth), gridWidth, (gridWidth + i*gridWidth), gridWidth*19);
+        	gc.strokeLine(gridWidth, (gridWidth + i*gridWidth), gridWidth*19, (gridWidth + i*gridWidth));
         	if(i == 3 || i == 9 || i == 15) {
-        		gc.fillOval((margin + i*gridWidth - 4), (margin + 3*gridWidth - 4), 8, 8);
-        		gc.fillOval((margin + i*gridWidth - 4), (margin + 9*gridWidth - 4), 8, 8);
-        		gc.fillOval((margin + i*gridWidth - 4), (margin + 15*gridWidth - 4), 8, 8);
+        		gc.fillOval((gridWidth + i*gridWidth - 4), (gridWidth + 3*gridWidth - 4), 8, 8);
+        		gc.fillOval((gridWidth + i*gridWidth - 4), (gridWidth + 9*gridWidth - 4), 8, 8);
+        		gc.fillOval((gridWidth + i*gridWidth - 4), (gridWidth + 15*gridWidth - 4), 8, 8);
         	}
         }
         String[] point = null;
@@ -107,7 +118,7 @@ public class App extends Application {
         		if(point != null) {
 	        		int y=Integer.parseInt(point[0]);
 	        		int x=Integer.parseInt(point[1]);
-	        		gc.fillOval(1 + x*gridWidth, 1 + y*gridWidth, gridWidth, gridWidth);
+	        		gc.drawImage(blackStone, gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth);
         		}
         	}
         }
@@ -118,7 +129,7 @@ public class App extends Application {
         		if(!point[0].equals("") && !point[1].equals("")) {
 	        		int y=Integer.parseInt(point[0]);
 	        		int x=Integer.parseInt(point[1]);
-	        		gc.fillOval(1 + x*gridWidth, 1 + y*gridWidth, gridWidth, gridWidth);
+	        		gc.drawImage(whiteStone, gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth);
         		}
         	}
         }
