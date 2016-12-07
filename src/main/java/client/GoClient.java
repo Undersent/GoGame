@@ -42,6 +42,7 @@ public class GoClient extends Application {
 	private int gridSize = 19;
 	
 	public GoClient() throws Exception {
+<<<<<<< HEAD
 		client = new Thread() {
 			@Override
 			public void run() {
@@ -73,15 +74,31 @@ public class GoClient extends Application {
 			}
 		};
 		client.start();
+=======
+		//Setup networking
+		System.out.println(3);
+		socket = new Socket(SERVER_ADDRESS, PORT);
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		out = new PrintWriter(socket.getOutputStream(), true);
+>>>>>>> branch 'master' of https://github.com/Undersent/GoGame.git
 	}
 	
     public static void main(String[] args) throws Exception {
+<<<<<<< HEAD
         launch(args);
 
+=======
+    	System.out.println(1);
+        
+        System.out.println(2);
+
+        
+        launch(args);
+>>>>>>> branch 'master' of https://github.com/Undersent/GoGame.git
     }
     
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws Exception {System.out.println(4);
     	Rectangle2D screenBounds = Screen.getPrimary().getBounds();
         primaryStage.setTitle("Go Game");
         primaryStage.setResizable(false);
@@ -129,6 +146,9 @@ public class GoClient extends Application {
         
         primaryStage.setScene(new Scene(borderPane));
         primaryStage.show();
+        
+        GoClient client = new GoClient();
+        client.play();
     }
 
     private void drawGrid(GraphicsContext gc) {
@@ -152,17 +172,27 @@ public class GoClient extends Application {
 		String response;
 		
 		try {
+<<<<<<< HEAD
 			response = in.readLine();
 			
 			if(response.startsWith("WELCOME")) {
 				System.out.println("dostalem wiadomosc");
 			}
+=======
+			   response = in.readLine();
+	            if (response.startsWith("WELCOME")) {
+	                System.out.println(response);
+	            }
+>>>>>>> branch 'master' of https://github.com/Undersent/GoGame.git
 			
 			while(true) {
 				response = in.readLine();
 				if(response.startsWith("POINTS")) {
 					System.out.println("dostalem punkty");
 				}
+				 else if (response.startsWith("MESSAGE")) {
+	                    System.out.println(response.substring(8));
+	                }
 			}
 		}
 		

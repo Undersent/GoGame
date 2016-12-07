@@ -33,14 +33,15 @@ public class Player extends Thread {
     public Player(Socket socket, char mark) {
     	
     	adapter = new Adapter();
-    
-    	System.out.println("Konstruktor");
+    	adapter.initializeBoard(19);
+    	
         this.socket = socket;
         this.mark = mark;
         try {
             input = new BufferedReader(
             new InputStreamReader(socket.getInputStream()));
             output = new PrintWriter(socket.getOutputStream(), true);
+            output.println("WELCOME " + mark);
             output.println("MESSAGE Waiting for opponent to connect");
         } catch (IOException e) {
             System.out.println("Player died: " + e);
@@ -63,38 +64,45 @@ public class Player extends Thread {
      */
     public void run() {
         try {
-        	System.out.println("run");
-        	String command = input.readLine();
+        	output.println("MESSAGE All players connected");
+        /*	String command = input.readLine();
         	if(command.startsWith("BOT")){
         	bot = new JustPut(adapter);
         	isBot = true;
         	}
+        	*/
             // The thread is only started after everyone connects.
-        	
-        	if (command.startsWith("SIZE")){
-        		adapter.initializeBoard(Integer.parseInt(command.substring(5)));
-        	}
-        
          
-            // Tell the first player that it is her turn.
-            if (mark == 'B') {
-                output.println("MESSAGE All players connected");
-                output.println("MESSAGE Your move");
- 
-            }
+
 
             // Repeatedly get commands from the client and process them.
-            while (true) { 
-            	command = input.readLine(); //row and col 
-         
+            while (true) {System.out.println("tutaj2");
+            	String command = input.readLine(); //row and col
             	
+          /*   	if (command.startsWith("SIZE")){
+            		adapter.initializeBoard(Integer.parseInt(command.substring(5)));
+            	}*/
+            	
+            	System.out.println(command+ " "+ mark);
                 if (command.startsWith("MOVE")) {
                     int row = Integer.parseInt(command.substring(5, command.indexOf(',')));
+<<<<<<< HEAD
                     int col = Integer.parseInt(command.substring(command.indexOf(',')+1));
                     if (adapter.playOnPoint(row, col) && mark == adapter.getPlayer()) {
+=======
+                //    System.out.println(row);
+                    int col = Integer.parseInt(command.substring(command.indexOf(',') + 1));
+                //    System.out.println(col);
+                  if(mark == adapter.getPlayer()){
+                    if (adapter.playOnPoint(row, col) ) {
+                    	System.out.println("rusza sie "+ adapter.getPlayer());
+                    	System.out.println("POINTS "+adapter.toString());
+>>>>>>> branch 'master' of https://github.com/Undersent/GoGame.git
                         output.println("POINTS "+adapter.toString());
+                        
                   
-                    	} else {
+                    	}
+                  }else {
                     		output.println("MESSAGE Move is impossible");
                     	}
                 	} else if (command.startsWith("QUIT")) {
@@ -118,6 +126,5 @@ public class Player extends Thread {
         }
     }
 }
-
 
 
