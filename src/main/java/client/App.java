@@ -1,12 +1,7 @@
 package client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -20,69 +15,36 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import network.Client;
 import network.NetworkConnection;
-import view.Go;
+import network.Server;
 
-public class GoClient extends Application {
+public class App extends Application {
 
-	private final int PORT = 8901;
-	private final String SERVER_ADDRESS = "localhost";
-	
-	private Socket socket;
-	private BufferedReader in;
-	private PrintWriter out;
-	
 	private static GraphicsContext gc;
 	private Label test;
 	private Label test2;
-	private Thread client;
 	
 	private int gridWidth = 42;
 	private int margin = 22;
 	private int gridSize = 19;
 	
-	public GoClient() throws Exception {
-		client = new Thread() {
-			@Override
-			public void run() {
-				try {
-					socket = new Socket(SERVER_ADDRESS, PORT);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				try {
-					in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				try {
-					out = new PrintWriter(socket.getOutputStream(), true);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				try {
-					sendBoardSize();
-					play();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		};
-		client.start();
-	}
+	private boolean isServer = false;
 	
+	private NetworkConnection connection = isServer ? createServer() : createClient();
+	
+	@Override
+	public void init() throws Exception {
+		connection.startConnection();
+	}
+
     public static void main(String[] args) throws Exception {
         launch(args);
 
     }
-    
+	
     @Override
     public void start(Stage primaryStage) {
-    	Rectangle2D screenBounds = Screen.getPrimary().getBounds();
         primaryStage.setTitle("Go Game");
         primaryStage.setResizable(false);
         BorderPane borderPane = new BorderPane();
@@ -105,7 +67,12 @@ public class GoClient extends Application {
 			public void handle(MouseEvent e) {
 				int x = (int) e.getX()/gridWidth;
         		int y = (int) e.getY()/gridWidth;
-        		makeMove(y, x);
+        		try {
+					connection.send("MOVE " + y + "," + x);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
         	
         });
@@ -148,36 +115,33 @@ public class GoClient extends Application {
         }
     }
 	
-	public void play() throws Exception {
-		String response;
-		
+	@Override
+	public void stop() throws Exception {
+		connection.closeConnection();
+	}
+	
+	private Server createServer() {
 		try {
-			response = in.readLine();
-			
-			if(response.startsWith("WELCOME")) {
-				System.out.println("dostalem wiadomosc");
-			}
-			
-			while(true) {
-				response = in.readLine();
-				if(response.startsWith("POINTS")) {
-					System.out.println("dostalem punkty");
-				}
-			}
-		}
-		
-		finally {
-			socket.close();
+			return new Server(8901, data -> {
+				Platform.runLater(() -> {
+					System.out.println(data.toString());
+				});
+			});
+		} catch (Exception e) {
+			return null;
 		}
 	}
 	
-	public void makeMove(int col, int row) {
-		System.out.println("MOVE " + col + "," + row);
-		out.println("MOVE " + col + "," + row);
+	private Client createClient() {
+		try {
+			return new Client("localhost", 8901, data -> {
+				Platform.runLater(() -> {
+					System.out.println(data.toString());
+				});
+			});
+		} catch (Exception e) {
+			return null;
+		}
 	}
-	
-	public void sendBoardSize() {
-		System.out.println("SIZE " + gridSize);
-		out.println("SIZE " + gridSize);
-	}
+
 }

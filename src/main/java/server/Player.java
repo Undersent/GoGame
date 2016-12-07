@@ -90,7 +90,7 @@ public class Player extends Thread {
             	
                 if (command.startsWith("MOVE")) {
                     int row = Integer.parseInt(command.substring(5, command.indexOf(',')));
-                    int col = Integer.parseInt(command.substring(command.indexOf(',')));
+                    int col = Integer.parseInt(command.substring(command.indexOf(',')+1));
                     if (adapter.playOnPoint(row, col) && mark == adapter.getPlayer()) {
                         output.println("POINTS "+adapter.toString());
                   
