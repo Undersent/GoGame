@@ -1,16 +1,24 @@
 package client;
 
+import javax.swing.ImageIcon;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
@@ -27,15 +35,19 @@ public class App extends Application {
 	private int height;
 	private int gridSize = 19;
 	
+	private Button vsPlayerButton;
+	
 	private Image blackStone;
 	private Image whiteStone;
+	
+	private TextArea messages = new TextArea();
 	
 	private boolean isServer = false;
 	
 	private NetworkConnection connection = isServer ? createServer() : createClient();
 	
-	String[] blackPoints;
-	String[] whitePoints;
+	private String[] blackPoints;
+	private String[] whitePoints;
 	
 	@Override
 	public void init() throws Exception {
@@ -44,16 +56,38 @@ public class App extends Application {
 
     public static void main(String[] args) throws Exception {
         launch(args);
-
     }
 	
+    /*
+     * Tworzy scene z menu startowym
+     */
+    private Scene makeMenuScene() {
+		BorderPane borderPane = new BorderPane();
+    	
+		vsPlayerButton = new Button("Gracz vs Gracz");
+		Button vsBotButton = new Button("Gracz vs Komputer");
+		Button quitButton = new Button("KONIEC");
+		
+		VBox menu = new VBox(20, vsPlayerButton, vsBotButton, quitButton);
+		
+		borderPane.setCenter(menu);
+		
+		Scene menuScene = new Scene(borderPane, height, height);
+    	
+		return menuScene;
+    }
+    
     @Override
     public void start(Stage primaryStage) {
     	Rectangle2D screen = Screen.getPrimary().getBounds();
     	double firstHeight = screen.getHeight() * 0.6;
     	gridWidth = (int) firstHeight/20;
     	height = gridWidth * 20;
-    	System.out.println(gridWidth + "\n" + height);
+
+        blackStone = new Image("img/blackStone.png", gridWidth, gridWidth, false, false);
+        whiteStone = new Image("img/whiteStone.png", gridWidth, gridWidth, false, false);
+    	
+    	primaryStage.getIcons().add(new Image("img/icon.jpg"));
     	
         primaryStage.setTitle("Go Game");
         primaryStage.setResizable(false);
@@ -61,6 +95,7 @@ public class App extends Application {
         
         Canvas canvas = new Canvas(height,height);
         gc = canvas.getGraphicsContext2D();
+        canvas.setCursor(Cursor.NONE);
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
         	public void handle(MouseEvent e) {
 
@@ -89,11 +124,48 @@ public class App extends Application {
         drawGrid(gc);
         borderPane.setCenter(canvas);
         
-        primaryStage.setScene(new Scene(borderPane));
-        primaryStage.show();
+        messages.setPrefSize(250, height - 40);
+        TextField input = new TextField();
+        input.setOnAction(event -> {
+        	String message = input.getText();
+        	input.clear();
+        	
+        	try {
+				connection.send("CHAT " + message);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        	
+        	messages.appendText(message + "\n");
+        });
+        messages.setWrapText(true);
+        VBox chat = new VBox(20, messages, input);
+        chat.setPrefSize(250, height);
+        borderPane.setRight(chat);
         
-        blackStone = new Image("img/blackStone.png", gridWidth, gridWidth, false, false);
-        whiteStone = new Image("img/whiteStone.png", gridWidth, gridWidth, false, false);
+        HBox playersLabels = new HBox(50, new Label("gracz1"), new Label("gracz2"));
+        HBox playersIcons = new HBox(50, new ImageView(blackStone), new ImageView(whiteStone));
+        
+        VBox infoPanel = new VBox(20, playersLabels, playersIcons);
+        borderPane.setLeft(infoPanel);
+
+        Scene gameScene = new Scene(borderPane);
+        
+        Scene menuScene = makeMenuScene();
+        
+        vsPlayerButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent arg0) {
+				primaryStage.setScene(gameScene);
+			}
+		
+        	
+        });
+        
+        primaryStage.setScene(menuScene);
+        primaryStage.show();
     }
 
     private void drawGrid(GraphicsContext gc) {
@@ -159,6 +231,10 @@ public class App extends Application {
 					System.out.println(data.toString());
 					if(data.toString().startsWith("POINTS")) {
 						updatePoints(data.toString().substring(7));
+					} else if(data.toString().startsWith("CHAT")) {
+						messages.appendText(data.toString().substring(5) + "\n");
+					} else if(data.toString().startsWith("MESSAGE")) {
+						messages.appendText("Server: "+ data.toString().substring(8) + "\n");
 					}
 				});
 			});
