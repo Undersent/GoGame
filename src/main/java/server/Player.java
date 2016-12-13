@@ -85,9 +85,11 @@ public class Player extends Thread {
 						if (adapter.playOnPoint(row, col)) {
 							opponent.sendMessage("POINTS " + adapter.toString());
 							output.println("POINTS " + adapter.toString());
+						} else {
+							output.println("MESSAGE move is impossible");
 						}
 					} else {
-						output.println("MESSAGE Move is impossible");
+						output.println("MESSAGE Wrong player");
 					}
 				} else if (command.startsWith("QUIT")) {
 					return;
@@ -98,15 +100,17 @@ public class Player extends Thread {
 				} else if (command.startsWith("PASS")) {
 					adapter.pass();
 					output.println("MESSAGE Pass");
-				} else if (command.startsWith("TERRITORY_B")) {
+				} else if (command.startsWith("TERRITORY_B")) { //////////////// do poprawy wziac od czarka ogarnianie stringa
 					int blankPoints = Integer.parseInt(command.substring(10));
 					output.println("TERRITORY_B "+ adapter.getBlackTerritory(blankPoints));
 				} else if (command.startsWith("TERRITORY_W")){
 					int blankPoints = Integer.parseInt(command.substring(10));
 					output.println("TERRITORY_W "+ adapter.getBlackTerritory(blankPoints));
+
 				} else if (command.startsWith("CHAT")){
 					opponent.sendMessage(command);
 				}
+
  
 			}
 		} catch (IOException e) {
