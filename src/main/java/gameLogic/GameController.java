@@ -35,6 +35,8 @@ public class GameController {
      */
     private boolean removedStone;
 
+	private int numberOfDead;
+
     public GameController(int size) {
         this.size = size;
         // Black always starts
@@ -66,7 +68,7 @@ public class GameController {
         savePosition();
         lastMove = null;
         passedPreviously = true;
-        changePlayer();
+
 
     }
 
@@ -152,7 +154,7 @@ public class GameController {
         }
 
         stones.put(point, stoneColor);
-
+        
         for (PointOnBoard neighbor :  getAllValidAdjacentLocations(point)) {
             removeIfDead(neighbor);
         }
@@ -193,10 +195,17 @@ public class GameController {
             if (!searchedPoints.isEmpty()) {
                 removedStone = true;
             }
+            numberOfDead=searchedPoints.size();
             for (PointOnBoard toRemove : searchedPoints) {
                 removeStone(toRemove);
             }
         }
+    }
+    
+    public int getCaptured(){
+    	int p = numberOfDead;
+    	numberOfDead=0;
+    	return p;
     }
 
     /**

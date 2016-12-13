@@ -19,8 +19,8 @@ public class Player extends Thread {
 	private BufferedReader input;
 	private PrintWriter output;
 	private Adapter adapter;
-	private JustPut bot;
-	boolean isBot = false;
+	private int blackCaptured=0, whiteCaptured =0; //blackCaptured - ile zlapal bialych 
+	private int passes =0;
 
 	/**
 	 * Constructs a handler thread for a given socket and mark initializes the
@@ -35,7 +35,9 @@ public class Player extends Thread {
 			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			output = new PrintWriter(socket.getOutputStream(), true);
 			output.println("WELCOME " + mark);
+
 			output.println("MESSAGE Waiting for opponent to connect");
+				
 		} catch (IOException e) {
 			System.out.println("Player died: " + e);
 		}
@@ -69,22 +71,23 @@ public class Player extends Thread {
 	public void run() {
 		try {
 			output.println("MESSAGE All players connected");
-			String command = input.readLine();
-			if (command.startsWith("BOT"))
-				isBot = true;
+	
+
 
 			// Repeatedly get commands from the client and process them.
 			while (true) {
-				command = input.readLine();
+				String command = input.readLine();
 
-				if (command.startsWith("MOVE") && isBot == false) {
+				if (command.startsWith("MOVE") ) {
 					int row = Integer.parseInt(command.substring(5, command.indexOf(',')));
 					int col = Integer.parseInt(command.substring(command.indexOf(',') + 1));
 
 					if (mark == adapter.getPlayer()) {
 						if (adapter.playOnPoint(row, col)) {
+							passes = 0;
 							opponent.sendMessage("POINTS " + adapter.toString());
 							output.println("POINTS " + adapter.toString());
+							System.out.println(adapter.getCaptured());
 						} else {
 							output.println("MESSAGE move is impossible");
 						}
@@ -94,12 +97,14 @@ public class Player extends Thread {
 				} else if (command.startsWith("QUIT")) {
 					return;
 
-				} else if (isBot && 'B' == adapter.getPlayer()) {
-					bot.findBestMove();
-					output.println("POINTS " + adapter.toString());
-				} else if (command.startsWith("PASS")) {
+				}  else if (command.startsWith("PASS")) {
+					System.out.println(command);
 					adapter.pass();
-					output.println("MESSAGE Pass");
+					passes +=1;
+					if(passes == 3){
+						countPoint();
+					}
+					
 				} else if (command.startsWith("TERRITORY_B")) { //////////////// do poprawy wziac od czarka ogarnianie stringa
 					int blankPoints = Integer.parseInt(command.substring(10));
 					output.println("TERRITORY_B "+ adapter.getBlackTerritory(blankPoints));
@@ -115,11 +120,19 @@ public class Player extends Thread {
 			}
 		} catch (IOException e) {
 			System.out.println("Player died: " + e);
-		} finally {
+		} catch (NullPointerException e) {
+			System.out.println("Null" + e);
+		}
+		finally {
 			try {
 				socket.close();
 			} catch (IOException e) {
 			}
 		}
+	}
+
+	private void countPoint() {
+		
+		
 	}
 }

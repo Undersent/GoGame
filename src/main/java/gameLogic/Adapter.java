@@ -124,4 +124,8 @@ public class Adapter implements Serializable {
 		return text;
 		  
 	  }
+	  
+	  public int getCaptured(){
+		  return gameController.getCaptured();
+	  }
 }

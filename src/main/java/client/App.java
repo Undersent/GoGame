@@ -53,7 +53,8 @@ public class App extends Application {
 	
 	@Override
 	public void init() throws Exception {
-		
+		connection.startConnection();
+
 	}
 
     public static void main(String[] args) throws Exception {
@@ -200,7 +201,7 @@ public class App extends Application {
 			public void handle(MouseEvent arg0) {
 				primaryStage.setScene(gameScene);
 				try {
-					connection.startConnection();
+					connection.send("NIEBOT");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -216,11 +217,11 @@ public class App extends Application {
 			public void handle(MouseEvent arg0) {
 				primaryStage.setScene(gameScene);
 				try {
-					connection.startConnection();
 					connection.send("BOT");
+
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 		
