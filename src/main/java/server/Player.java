@@ -19,7 +19,7 @@ public class Player extends Thread {
 	private BufferedReader input;
 	private PrintWriter output;
 	private Adapter adapter;
-	private int blackCaptured=0, whiteCaptured =0; //blackCaptured - ile zlapal bialych 
+	private int blackCaptured=0, whiteCaptured =0, blackTerritory = 0, whiteTerritory=0; //blackCaptured - ile zlapal bialych 
 	private int passes =0;
 
 	/**
@@ -87,7 +87,15 @@ public class Player extends Thread {
 							passes = 0;
 							opponent.sendMessage("POINTS " + adapter.toString());
 							output.println("POINTS " + adapter.toString());
-							System.out.println(adapter.getCaptured());
+							if(mark == 'B'){
+								blackCaptured += adapter.getCaptured();
+								output.println("BLACK_POINTS "+ blackCaptured);
+								opponent.sendMessage("BLACK_POINTS "+ blackCaptured);
+							}else {
+								whiteCaptured += adapter.getCaptured();
+								output.println("WHITE_POINTS "+ whiteCaptured);
+								opponent.sendMessage("WHITE_POINTS "+ whiteCaptured);
+							}
 						} else {
 							output.println("MESSAGE move is impossible");
 						}
@@ -102,7 +110,7 @@ public class Player extends Thread {
 					adapter.pass();
 					passes +=1;
 					if(passes == 3){
-						countPoint();
+						output.println("COUNT_TERRITORY");
 					}
 					
 				} else if (command.startsWith("TERRITORY_B")) { //////////////// do poprawy wziac od czarka ogarnianie stringa
