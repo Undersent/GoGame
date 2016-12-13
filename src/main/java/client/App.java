@@ -36,6 +36,8 @@ public class App extends Application {
 	private int gridSize = 19;
 	
 	private Button vsPlayerButton;
+	private Button vsBotButton;
+	private Button quitButton;
 	
 	private Image blackStone;
 	private Image whiteStone;
@@ -51,7 +53,7 @@ public class App extends Application {
 	
 	@Override
 	public void init() throws Exception {
-		connection.startConnection();
+		
 	}
 
     public static void main(String[] args) throws Exception {
@@ -65,8 +67,8 @@ public class App extends Application {
 		BorderPane borderPane = new BorderPane();
     	
 		vsPlayerButton = new Button("Gracz vs Gracz");
-		Button vsBotButton = new Button("Gracz vs Komputer");
-		Button quitButton = new Button("KONIEC");
+		vsBotButton = new Button("Gracz vs Komputer");
+		quitButton = new Button("KONIEC");
 		
 		VBox menu = new VBox(20, vsPlayerButton, vsBotButton, quitButton);
 		
@@ -147,6 +149,27 @@ public class App extends Application {
         HBox playersLabels = new HBox(50, new Label("gracz1"), new Label("gracz2"));
         HBox playersIcons = new HBox(50, new ImageView(blackStone), new ImageView(whiteStone));
         
+        Button passButton = new Button("PASS");
+        Button resignButton = new Button("RESIGN");
+        HBox bottomButoons = new HBox(100, passButton, resignButton);
+        borderPane.setBottom(bottomButoons);
+        
+        passButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent arg0) {
+				try {
+					connection.send("PASS");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+        	
+        });
+        
+
+        
         VBox infoPanel = new VBox(20, playersLabels, playersIcons);
         borderPane.setLeft(infoPanel);
 
@@ -154,14 +177,74 @@ public class App extends Application {
         
         Scene menuScene = makeMenuScene();
         
+        resignButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent arg0) {
+				try {
+					connection.send("QUIT");
+					connection.closeConnection();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				primaryStage.setScene(menuScene);
+			}
+        	
+        });
+        
         vsPlayerButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 
 			@Override
 			public void handle(MouseEvent arg0) {
 				primaryStage.setScene(gameScene);
+				try {
+					connection.startConnection();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		
         	
+        });
+        
+        vsBotButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent arg0) {
+				primaryStage.setScene(gameScene);
+				try {
+					connection.startConnection();
+					connection.send("BOT");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		
+        	
+        });
+        
+        quitButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+				Platform.exit();
+				
+			}
+        	
+        });
+        
+        primaryStage.setOnCloseRequest(e -> {
+    		try {
+				connection.closeConnection();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        	Platform.exit();
         });
         
         primaryStage.setScene(menuScene);
@@ -209,7 +292,6 @@ public class App extends Application {
 	
 	@Override
 	public void stop() throws Exception {
-		connection.closeConnection();
 	}
 	
 	private Server createServer() {
