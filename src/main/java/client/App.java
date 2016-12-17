@@ -14,6 +14,8 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -36,6 +38,8 @@ public class App extends Application {
 
 	private static GraphicsContext gc;
 	
+	private int win = 0;
+	
 	private String mark;
 	
 	private int gridWidth = 42;
@@ -43,9 +47,12 @@ public class App extends Application {
 	private int gridSize = 19;
 	
 	private boolean countTerritory = false;
+	private boolean territoryChecked = false;
 	
-	private Label xl= new Label();
-	private Label yl = new Label();
+	private Label xl= new Label("Punkty B");
+	private Label yl = new Label("Punkty W");
+	private Label pB= new Label("");
+	private Label pW = new Label("");
 	
 	private List<Stone> territoryStones = new ArrayList<Stone>();
 	private List<Stone> stones = new ArrayList<Stone>();
@@ -132,8 +139,6 @@ public class App extends Application {
         		int y = (int) (e.getY()-gridWidth/2)/gridWidth;
         		if(x==19) x=18;
         		if(y==19) y=18;
-        		xl.setText(String.valueOf(x));
-        		yl.setText(String.valueOf(y));
 				gc.strokeOval(gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth, gridWidth, gridWidth);
 			}
         });
@@ -169,7 +174,7 @@ public class App extends Application {
         					break;
         				}
         			}
-        			if(canAddStone) territoryStones.add(new Stone(x, y, gridWidth, gridWidth));
+        			if(canAddStone && !territoryChecked) territoryStones.add(new Stone(x, y, gridWidth, gridWidth));
         			drawGrid(gc);
         		}
 			}
@@ -213,12 +218,14 @@ public class App extends Application {
 				for(Stone s: territoryStones) {
 					message += s.getY() + "," + s.getX() + ";";
 				}
+				message+= "!"+ territoryStones.size();
 				try {
 					connection.send(message);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				territoryChecked = true;
 				territory.setVisible(false);
 			}});
         HBox bottomButoons = new HBox(100, passButton, resignButton, territory);
@@ -240,7 +247,7 @@ public class App extends Application {
         
 
         
-        VBox infoPanel = new VBox(20, playersLabels, playersIcons, xl, yl);
+        VBox infoPanel = new VBox(20, playersLabels, playersIcons, xl, yl, pB, pW);
         borderPane.setLeft(infoPanel);
 
         Scene gameScene = new Scene(borderPane);
@@ -400,32 +407,14 @@ public class App extends Application {
 						messages.appendText("Server: zaznacz terytorium" + "\n");
 						countTerritory = true;
 						territory.setVisible(true);
-						String[] point = null;
-			        	for(int i=0; i<blackPoints.length;i++) {
-			        		point = blackPoints[i].split(",");
-			        		if(point != null) {
-				        		int y=Integer.parseInt(point[0]);
-				        		int x=Integer.parseInt(point[1]);
-				        		stones.add(new Stone(x, y, gridWidth, gridWidth));
-			        		}
-			        	}
-			        	for(int i=0; i<whitePoints.length;i++) {
-			        		point = whitePoints[i].split(",");
-			        		if(!point[0].equals("") && !point[1].equals("")) {
-				        		int y=Integer.parseInt(point[0]);
-				        		int x=Integer.parseInt(point[1]);
-				        		stones.add(new Stone(x, y, gridWidth, gridWidth));
-			        		}
-			        	}
-			        	for(Stone s: stones) {
-			        		System.out.println(s.toString());
-			        	}
+						updateStones();
 					} else if(data.toString().startsWith("TERRITORY") ) {
-						territory.setVisible(true);
+						if(!territoryChecked) territory.setVisible(true);
 						countTerritory = true;
 						String points = data.toString().substring(12);
 						String [] enemy = points.split(";");
 						String[] point = null;
+						updateStones();
 			        	for(int i=0; i<enemy.length;i++) {
 			        		point = enemy[i].split(",");
 			        		if(point != null) {
@@ -434,6 +423,39 @@ public class App extends Application {
 				        		enemyStones.add(new Stone(x, y, gridWidth, gridWidth));
 			        		}
 			        	}
+			        	drawGrid(gc);
+			        	if(win == 2) {
+			        		try {
+								connection.send("WIN");
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+			        	}
+					} else if(data.toString().startsWith("BLACK_POINTS")) {
+						pB.setText(data.toString().substring(13));
+						if(territoryChecked) {
+							win++;
+						}
+					} else if(data.toString().startsWith("WHITE_POINTS")) {
+						pW.setText(data.toString().substring(13));
+						if(territoryChecked) {
+							win++;
+						}
+					} else if(data.toString().startsWith("WIN")) {
+		        		Alert alert = new Alert(AlertType.INFORMATION);
+		        		alert.setTitle("WYNIKI");
+		        		alert.setHeaderText(null);
+		        		int black = Integer.parseInt(pB.getText());
+		        		int white = Integer.parseInt(pW.getText());
+		        		if(black > white) {
+		        			alert.setContentText("BLACK WINS!");
+		        		} else if(black < white) {
+		        			alert.setContentText("WHITE WINS!");
+		        		} else {
+		        			alert.setContentText("DRAW!");
+		        		}
+		        		alert.showAndWait();
 					}
 				});
 			});
@@ -441,7 +463,27 @@ public class App extends Application {
 			return null;
 		}
 	}
-
+	
+	public void updateStones() {
+		String[] point = null;
+    	for(int i=0; i<blackPoints.length;i++) {
+    		point = blackPoints[i].split(",");
+    		if(point != null) {
+        		int y=Integer.parseInt(point[0]);
+        		int x=Integer.parseInt(point[1]);
+        		stones.add(new Stone(x, y, gridWidth, gridWidth));
+    		}
+    	}
+    	for(int i=0; i<whitePoints.length;i++) {
+    		point = whitePoints[i].split(",");
+    		if(!point[0].equals("") && !point[1].equals("")) {
+        		int y=Integer.parseInt(point[0]);
+        		int x=Integer.parseInt(point[1]);
+        		stones.add(new Stone(x, y, gridWidth, gridWidth));
+    		}
+    	}
+	}
+	
 	public void updatePoints(String points) {
 		int endOfBlackPoints = points.indexOf('B') - 1;
 		blackPoints = points.substring(0, endOfBlackPoints).split(";");
