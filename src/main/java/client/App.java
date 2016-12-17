@@ -36,6 +36,8 @@ public class App extends Application {
 
 	private static GraphicsContext gc;
 	
+	private String mark;
+	
 	private int gridWidth = 42;
 	private int height;
 	private int gridSize = 19;
@@ -64,6 +66,8 @@ public class App extends Application {
 	
 	private String[] blackPoints;
 	private String[] whitePoints;
+
+	private List<Stone> enemyStones = new ArrayList<Stone>();
 	
 	@Override
 	public void init() throws Exception {
@@ -151,7 +155,7 @@ public class App extends Application {
         		} else {
         			boolean canAddStone = true;
         			for(Stone s: territoryStones) {
-        				Rectangle2D r = new Rectangle2D(s.getX(), s.getY(), s.getW(), s.getH());
+        				Rectangle2D r = new Rectangle2D(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
         				if(r.contains(e.getX(), e.getY())) {
         					canAddStone = false;
         					territoryStones.remove(s);
@@ -159,13 +163,13 @@ public class App extends Application {
         				}
         			}
         			for(Stone s: stones) {
-        				Rectangle2D r = new Rectangle2D(s.getX(), s.getY(), s.getW(), s.getH());
+        				Rectangle2D r = new Rectangle2D(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
         				if(r.contains(e.getX(), e.getY())) {
         					canAddStone = false;
         					break;
         				}
         			}
-        			if(canAddStone) territoryStones.add(new Stone(gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth, gridWidth, gridWidth));
+        			if(canAddStone) territoryStones.add(new Stone(x, y, gridWidth, gridWidth));
         			drawGrid(gc);
         		}
 			}
@@ -201,6 +205,22 @@ public class App extends Application {
         Button passButton = new Button("PASS");
         Button resignButton = new Button("RESIGN");
         territory.setVisible(false);
+        territory.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent arg0) {
+				String message = "TERRITORY_" + mark + " ";
+				for(Stone s: territoryStones) {
+					message += s.getY() + "," + s.getX() + ";";
+				}
+				try {
+					connection.send(message);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				territory.setVisible(false);
+			}});
         HBox bottomButoons = new HBox(100, passButton, resignButton, territory);
         borderPane.setBottom(bottomButoons);
         
@@ -340,7 +360,11 @@ public class App extends Application {
         }
         for(Stone s: territoryStones) {
         	gc.setFill(Color.RED);
-        	gc.fillOval(s.getX(), s.getY(), s.getW(), s.getH());
+        	gc.fillOval(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
+        }
+        for(Stone s: enemyStones) {
+        	gc.setFill(Color.BLUE);
+        	gc.fillOval(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
         }
     }
 	
@@ -364,8 +388,9 @@ public class App extends Application {
 		try {
 			return new Client("localhost", 8901, data -> {
 				Platform.runLater(() -> {
-					System.out.println(data.toString());
-					if(data.toString().startsWith("POINTS")) {
+					if(data.toString().startsWith("WELCOME")) {
+						mark = data.toString().substring(8);
+					} else if(data.toString().startsWith("POINTS")) {
 						updatePoints(data.toString().substring(7));
 					} else if(data.toString().startsWith("CHAT")) {
 						messages.appendText(data.toString().substring(5) + "\n");
@@ -377,27 +402,39 @@ public class App extends Application {
 						territory.setVisible(true);
 						String[] point = null;
 			        	for(int i=0; i<blackPoints.length;i++) {
-			        		gc.setFill(Color.BLACK);
 			        		point = blackPoints[i].split(",");
 			        		if(point != null) {
 				        		int y=Integer.parseInt(point[0]);
 				        		int x=Integer.parseInt(point[1]);
-				        		stones.add(new Stone(gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth, gridWidth, gridWidth));
+				        		stones.add(new Stone(x, y, gridWidth, gridWidth));
 			        		}
 			        	}
 			        	for(int i=0; i<whitePoints.length;i++) {
-			        		gc.setFill(Color.WHITE);
 			        		point = whitePoints[i].split(",");
 			        		if(!point[0].equals("") && !point[1].equals("")) {
 				        		int y=Integer.parseInt(point[0]);
 				        		int x=Integer.parseInt(point[1]);
-				        		stones.add(new Stone(gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth, gridWidth, gridWidth));
+				        		stones.add(new Stone(x, y, gridWidth, gridWidth));
 			        		}
 			        	}
 			        	for(Stone s: stones) {
 			        		System.out.println(s.toString());
 			        	}
-					}});
+					} else if(data.toString().startsWith("TERRITORY")) {
+						territory.setVisible(true);
+						String points = data.toString().substring(12);
+						String [] enemy = points.split(";");
+						String[] point = null;
+			        	for(int i=0; i<enemy.length;i++) {
+			        		point = enemy[i].split(",");
+			        		if(point != null) {
+				        		int y=Integer.parseInt(point[0]);
+				        		int x=Integer.parseInt(point[1]);
+				        		enemyStones.add(new Stone(x, y, gridWidth, gridWidth));
+			        		}
+			        	}
+					}
+				});
 			});
 		} catch (Exception e) {
 			return null;

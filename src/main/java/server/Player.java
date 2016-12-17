@@ -114,11 +114,11 @@ public class Player extends Thread {
 					}
 					
 				} else if (command.startsWith("TERRITORY_B")) { //////////////// do poprawy wziac od czarka ogarnianie stringa
-					int blankPoints = Integer.parseInt(command.substring(10));
-					output.println("TERRITORY_B "+ adapter.getBlackTerritory(blankPoints));
+					//int blankPoints = Integer.parseInt(command.substring(10));
+					//output.println("TERRITORY_B "+ adapter.getBlackTerritory(blankPoints));
 				} else if (command.startsWith("TERRITORY_W")){
-					int blankPoints = Integer.parseInt(command.substring(10));
-					output.println("TERRITORY_W "+ adapter.getBlackTerritory(blankPoints));
+					//int blankPoints = Integer.parseInt(command.substring(10));
+					//output.println("TERRITORY_W "+ adapter.getBlackTerritory(blankPoints));
 
 				} else if (command.startsWith("CHAT")){
 					opponent.sendMessage(command);
