@@ -1,10 +1,14 @@
 package client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.ImageIcon;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -26,6 +30,7 @@ import javafx.stage.Stage;
 import network.Client;
 import network.NetworkConnection;
 import network.Server;
+import view.Stone;
 
 public class App extends Application {
 
@@ -35,9 +40,18 @@ public class App extends Application {
 	private int height;
 	private int gridSize = 19;
 	
+	private boolean countTerritory = false;
+	
+	private Label xl= new Label();
+	private Label yl = new Label();
+	
+	private List<Stone> territoryStones = new ArrayList<Stone>();
+	private List<Stone> stones = new ArrayList<Stone>();
+	
 	private Button vsPlayerButton;
 	private Button vsBotButton;
 	private Button quitButton;
+	private Button territory= new Button("Potwiedz");
 	
 	private Image blackStone;
 	private Image whiteStone;
@@ -68,15 +82,21 @@ public class App extends Application {
 		BorderPane borderPane = new BorderPane();
     	
 		vsPlayerButton = new Button("Gracz vs Gracz");
+		vsPlayerButton.setPrefWidth(300);
 		vsBotButton = new Button("Gracz vs Komputer");
+		vsBotButton.setPrefWidth(300);
 		quitButton = new Button("KONIEC");
+		quitButton.setPrefWidth(300);
 		
 		VBox menu = new VBox(20, vsPlayerButton, vsBotButton, quitButton);
+		menu.setAlignment(Pos.CENTER);
 		
 		borderPane.setCenter(menu);
 		
 		Scene menuScene = new Scene(borderPane, height, height);
     	
+		menuScene.getStylesheets().add("client/style.css");
+		
 		return menuScene;
     }
     
@@ -98,13 +118,18 @@ public class App extends Application {
         
         Canvas canvas = new Canvas(height,height);
         gc = canvas.getGraphicsContext2D();
-        canvas.setCursor(Cursor.NONE);
+        //canvas.setCursor(Cursor.NONE);
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
         	public void handle(MouseEvent e) {
 
+        		
         		drawGrid(gc);
-        		int x = (int) e.getX()/gridWidth;
-        		int y = (int) e.getY()/gridWidth;
+        		int x = (int) (e.getX()-gridWidth/2)/gridWidth;
+        		int y = (int) (e.getY()-gridWidth/2)/gridWidth;
+        		if(x==19) x=18;
+        		if(y==19) y=18;
+        		xl.setText(String.valueOf(x));
+        		yl.setText(String.valueOf(y));
 				gc.strokeOval(gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth, gridWidth, gridWidth);
 			}
         });
@@ -112,14 +137,37 @@ public class App extends Application {
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent e) {
-				int x = (int) e.getX()/gridWidth;
-        		int y = (int) e.getY()/gridWidth;
-        		try {
-					connection.send("MOVE " + y + "," + x);
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+        		int x = (int) (e.getX()-gridWidth/2)/gridWidth;
+        		int y = (int) (e.getY()-gridWidth/2)/gridWidth;
+        		if(x==19) x=18;
+        		if(y==19) y=18;
+        		if(!countTerritory) {
+	        		try {
+						connection.send("MOVE " + y + "," + x);
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+        		} else {
+        			boolean canAddStone = true;
+        			for(Stone s: territoryStones) {
+        				Rectangle2D r = new Rectangle2D(s.getX(), s.getY(), s.getW(), s.getH());
+        				if(r.contains(e.getX(), e.getY())) {
+        					canAddStone = false;
+        					territoryStones.remove(s);
+        					break;
+        				}
+        			}
+        			for(Stone s: stones) {
+        				Rectangle2D r = new Rectangle2D(s.getX(), s.getY(), s.getW(), s.getH());
+        				if(r.contains(e.getX(), e.getY())) {
+        					canAddStone = false;
+        					break;
+        				}
+        			}
+        			if(canAddStone) territoryStones.add(new Stone(gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth, gridWidth, gridWidth));
+        			drawGrid(gc);
+        		}
 			}
         	
         });
@@ -152,7 +200,8 @@ public class App extends Application {
         
         Button passButton = new Button("PASS");
         Button resignButton = new Button("RESIGN");
-        HBox bottomButoons = new HBox(100, passButton, resignButton);
+        territory.setVisible(false);
+        HBox bottomButoons = new HBox(100, passButton, resignButton, territory);
         borderPane.setBottom(bottomButoons);
         
         passButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
@@ -171,7 +220,7 @@ public class App extends Application {
         
 
         
-        VBox infoPanel = new VBox(20, playersLabels, playersIcons);
+        VBox infoPanel = new VBox(20, playersLabels, playersIcons, xl, yl);
         borderPane.setLeft(infoPanel);
 
         Scene gameScene = new Scene(borderPane);
@@ -289,6 +338,10 @@ public class App extends Application {
         		}
         	}
         }
+        for(Stone s: territoryStones) {
+        	gc.setFill(Color.RED);
+        	gc.fillOval(s.getX(), s.getY(), s.getW(), s.getH());
+        }
     }
 	
 	@Override
@@ -318,8 +371,33 @@ public class App extends Application {
 						messages.appendText(data.toString().substring(5) + "\n");
 					} else if(data.toString().startsWith("MESSAGE")) {
 						messages.appendText("Server: "+ data.toString().substring(8) + "\n");
-					}
-				});
+					} else if (data.toString().startsWith("COUNT_TERRITORY")) {
+						messages.appendText("Server: zaznacz terytorium" + "\n");
+						countTerritory = true;
+						territory.setVisible(true);
+						String[] point = null;
+			        	for(int i=0; i<blackPoints.length;i++) {
+			        		gc.setFill(Color.BLACK);
+			        		point = blackPoints[i].split(",");
+			        		if(point != null) {
+				        		int y=Integer.parseInt(point[0]);
+				        		int x=Integer.parseInt(point[1]);
+				        		stones.add(new Stone(gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth, gridWidth, gridWidth));
+			        		}
+			        	}
+			        	for(int i=0; i<whitePoints.length;i++) {
+			        		gc.setFill(Color.WHITE);
+			        		point = whitePoints[i].split(",");
+			        		if(!point[0].equals("") && !point[1].equals("")) {
+				        		int y=Integer.parseInt(point[0]);
+				        		int x=Integer.parseInt(point[1]);
+				        		stones.add(new Stone(gridWidth/2 + x*gridWidth, gridWidth/2 + y*gridWidth, gridWidth, gridWidth));
+			        		}
+			        	}
+			        	for(Stone s: stones) {
+			        		System.out.println(s.toString());
+			        	}
+					}});
 			});
 		} catch (Exception e) {
 			return null;
