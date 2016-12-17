@@ -81,12 +81,13 @@ public class GameController {
      * then change player. False if move is invalid
      */
     public boolean playAt(int row, int col) {
+    	//check if point is out of boundary f.e x = -1 or x=20
         if (isOutOfBoundary(row, col)) {
             return false;
         }
         
         PointOnBoard newStone = getPointAt(row, col);
-
+        //check if point is occupied by other points
         if (isOccupied(newStone)) {
             return false;
         }
@@ -160,11 +161,15 @@ public class GameController {
         }
 
     }
-
+    
     private void removeStone(PointOnBoard gp) {
         stones.put(gp, StoneColor.NONE);
     }
-
+    /**
+     * get All points which are above, under, on a left or right side and add it to Set 
+     * @param point, get all points adjacent to this
+     * @return Set of adjacent Points
+     */
     private Set<PointOnBoard>  getAllValidAdjacentLocations(PointOnBoard point) {
         Set<PointOnBoard> neighbors = new HashSet<>();
         // get neighbor down
@@ -202,6 +207,10 @@ public class GameController {
         }
     }
     
+    /**
+     * 
+     * @return number of Captured points this turn
+     */
     public int getCaptured(){
     	int p = numberOfDead;
     	numberOfDead=0;
@@ -236,28 +245,49 @@ public class GameController {
         return true;
     }
     
-    
-    private boolean isOccupied(PointOnBoard gp) {
-        return stones.get(gp) != StoneColor.NONE;
+    /**
+     * 
+     * @param point 
+     * @return true if this position is empty
+     */
+    private boolean isOccupied(PointOnBoard point) {
+        return stones.get(point) != StoneColor.NONE;
     }
-
+    /**
+     * 
+     * @param row of board
+     * @param col of board
+     * @return particular point existing on this row and col
+     */
     private PointOnBoard getPointAt(int row, int col) {
         return new PointOnBoard(row, col);
     }
-
+    /**
+     * change player which can make move
+     */
     private void changePlayer() {
         isBlackMove = !isBlackMove;
     }
-    
+    /**
+     * 
+     * @return B if actual pplayer is Black else W <white>
+     */
     public char getPlayer()
     {
     	return isBlackMove ? 'B' : 'W';
     }
-
+    /**
+     * 
+     * @return Iterable of all points where can exist points
+     */
     public Iterable<PointOnBoard> getAllPoints() {
         return stones.keySet();  
     }
-
+    /**
+     * 
+     * @param pointOnBoard where we can check color
+     * @return color of Point
+     */
     public StoneColor getColor(PointOnBoard pointOnBoard) {
         return stones.get(pointOnBoard);
     }
@@ -270,7 +300,12 @@ public class GameController {
     public PointOnBoard getLastMove() {
         return lastMove;
     }
-    
+    /**
+     * 
+     * @param row of Board
+     * @param col of Board
+     * @return true if is NOT out of boundary
+     */
     private boolean isOutOfBoundary(int row, int col){
     	if(row >= size || col >= size || row < 0 || col < 0)
     		return true;
