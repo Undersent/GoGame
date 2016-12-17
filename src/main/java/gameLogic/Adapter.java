@@ -15,7 +15,9 @@ public class Adapter implements Serializable {
 	private LinkedList<PointOnBoard> whitePoints = new LinkedList<PointOnBoard>();
 	private LinkedList<PointOnBoard> coloredPoints = new LinkedList<PointOnBoard>();
 	private GameController gameController;
-	private StoneColor stone;
+	private int passes = 0;
+	private boolean canBlackPass = true;
+	private boolean canWhitePass = true;
 	
 	  /**
 	   * 
@@ -84,9 +86,39 @@ public class Adapter implements Serializable {
 		  return gameController.getPlayer();
 	  }
 	  
-	  public void pass(){
+	  public boolean pass(){
 		  gameController.pass();
+		  passes+=1;
+		  if(passes == 2)
+			  return true;
+		  return false;
 	  }
+	  
+	  
+	  public int getPasses(){
+		  return passes;
+	  }
+	  
+	  public void setPasses(int n){
+		  passes = n;
+	  }
+	  
+	/*  public void allowBlackPass(boolean canPass){	
+		canBlackPass = canPass;
+	  }
+	  
+	  public void allowWhitePass(boolean canPass){
+		  canWhitePass = canPass;
+	  }
+	  
+	  public boolean canBlackPass(){
+		  return canBlackPass;
+	  }
+	  
+	  public boolean canWhitePass(){
+		  return canWhitePass;
+	  }
+	  */
 	  
 
 	  
@@ -98,14 +130,7 @@ public class Adapter implements Serializable {
 	        return gameController.getColor(pointOnBoard);
 	    }
 	  
-	  public int getBlackTerritory(int blankPoints){
-		  int points = this.getBlackPoints().size() + blankPoints;
-		  return points;
-	  }
-	  
-	  public int getWhiteTerritory(int blankPoints){
-		  return this.getWhitePoints().size() + blankPoints;
-	  }
+
 	  /**
 	   * It is necessary to send easy interpretable messages to client 
 	   */
@@ -128,4 +153,6 @@ public class Adapter implements Serializable {
 	  public int getCaptured(){
 		  return gameController.getCaptured();
 	  }
+	  
+
 }

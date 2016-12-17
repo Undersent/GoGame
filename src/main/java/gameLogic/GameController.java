@@ -68,7 +68,7 @@ public class GameController {
         savePosition();
         lastMove = null;
         passedPreviously = true;
-
+        changePlayer();
 
     }
 

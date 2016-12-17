@@ -9,6 +9,7 @@ import bots.JustPut;
 import gameLogic.Adapter;
 
 //GAME - PLAYER
+//LINIA 122 DODANY KOMENTARZ wyjasniajacy jak dzialaja terytoria
 /**
  * A two-player game.
  */
@@ -19,8 +20,8 @@ public class Player extends Thread {
 	private BufferedReader input;
 	private PrintWriter output;
 	private Adapter adapter;
-	private int blackCaptured=0, whiteCaptured =0, blackTerritory = 0, whiteTerritory=0; //blackCaptured - ile zlapal bialych 
-	private int passes =0;
+	private int blackCaptured=0, whiteCaptured =0; //blackCaptured - ile zlapal bialych 
+
 
 	/**
 	 * Constructs a handler thread for a given socket and mark initializes the
@@ -84,7 +85,8 @@ public class Player extends Thread {
 
 					if (mark == adapter.getPlayer()) {
 						if (adapter.playOnPoint(row, col)) {
-							passes = 0;
+							adapter.setPasses(0);
+							
 							opponent.sendMessage("POINTS " + adapter.toString());
 							output.println("POINTS " + adapter.toString());
 							if(mark == 'B'){
@@ -106,19 +108,32 @@ public class Player extends Thread {
 					return;
 
 				}  else if (command.startsWith("PASS")) {
-					System.out.println(command);
-					adapter.pass();
-					passes +=1;
-					if(passes == 3){
+					
+					if(adapter.getPlayer() == mark){
+					if(adapter.pass()){
 						output.println("COUNT_TERRITORY");
 					}
-					
-				} else if (command.startsWith("TERRITORY_B")) { //////////////// do poprawy wziac od czarka ogarnianie stringa
-					//int blankPoints = Integer.parseInt(command.substring(10));
-					//output.println("TERRITORY_B "+ adapter.getBlackTerritory(blankPoints));
+					}
+					/*
+					 * TUTAJ WYSYLAM PRZECIWNIKOWI TERYTORIUM 
+					 *  LICZE territoryPoints CZYLI TYLE ILE DOSTAL PO WYKRZYKNIKU
+					 *  i dodaje do capturedPoints czyli tyle ile przejal wrogow
+					 *   NASTEPNIE WYSYLAM JE Tobie jako laczna sume punktow
+					 * "POINTS_W <liczba punktow zdobytych w calej grze>
+					 * Zastanawiam sie jeszcze aby wysylac Ci kto wygral, ale
+					 * to juz chyba mozna w kliencie jebnac po prostu porownujesz kto wiecej punktow
+					 * ma i wyswietlasz odpowiedni komunikat
+					 */
+				} else if (command.startsWith("TERRITORY_B")) { 
+					opponent.sendMessage(command);
+					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')));
+					int blackPoints = territoryPoints + blackCaptured;
+					output.println("POINTS_B "+ blackPoints);
 				} else if (command.startsWith("TERRITORY_W")){
-					//int blankPoints = Integer.parseInt(command.substring(10));
-					//output.println("TERRITORY_W "+ adapter.getBlackTerritory(blankPoints));
+					opponent.sendMessage(command);
+					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')));
+					int whitePoints = territoryPoints + whiteCaptured;
+					output.println("POINTS_W "+ whitePoints);
 
 				} else if (command.startsWith("CHAT")){
 					opponent.sendMessage(command);
@@ -139,8 +154,4 @@ public class Player extends Thread {
 		}
 	}
 
-	private void countPoint() {
-		
-		
-	}
 }

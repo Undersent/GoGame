@@ -420,8 +420,9 @@ public class App extends Application {
 			        	for(Stone s: stones) {
 			        		System.out.println(s.toString());
 			        	}
-					} else if(data.toString().startsWith("TERRITORY")) {
+					} else if(data.toString().startsWith("TERRITORY") ) {
 						territory.setVisible(true);
+						countTerritory = true;
 						String points = data.toString().substring(12);
 						String [] enemy = points.split(";");
 						String[] point = null;
