@@ -125,18 +125,22 @@ public class Player extends Thread {
 					 * ma i wyswietlasz odpowiedni komunikat
 					 */
 				} else if (command.startsWith("TERRITORY_B")) { 
-					opponent.sendMessage(command);
-					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')));
+					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')+1));
 					int blackPoints = territoryPoints + blackCaptured;
-					output.println("POINTS_B "+ blackPoints);
+					output.println("BLACK_POINTS "+ blackPoints);
+					opponent.sendMessage("BLACK_POINTS "+ blackPoints);
+					opponent.sendMessage(command.substring(0, command.indexOf("!")));
 				} else if (command.startsWith("TERRITORY_W")){
-					opponent.sendMessage(command);
-					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')));
+					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')+1));
 					int whitePoints = territoryPoints + whiteCaptured;
-					output.println("POINTS_W "+ whitePoints);
-
+					output.println("WHITE_POINTS "+ whitePoints);
+					opponent.sendMessage("WHITE_POINTS "+ whitePoints);
+					opponent.sendMessage(command.substring(0, command.indexOf("!")));
 				} else if (command.startsWith("CHAT")){
 					opponent.sendMessage(command);
+				} else if (command.startsWith("WIN")) {
+					opponent.sendMessage(command);
+					output.println(command);
 				}
 
  
