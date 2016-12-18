@@ -15,11 +15,6 @@ public class Client extends NetworkConnection {
 	}
 
 	@Override
-	protected boolean isServer() {
-		return false;
-	}
-
-	@Override
 	protected String getIP() {
 		return ip;
 	}

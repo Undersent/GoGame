@@ -16,3 +16,9 @@
 .button Text {
     -fx-effect: dropshadow( one-pass-box , white , 0, 0.0 , 0 , 1 );
 }
+
+.label {
+	-fx-font-family: "Helvetica";
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+}

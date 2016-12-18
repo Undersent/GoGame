@@ -2,11 +2,8 @@ package network;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.function.Consumer;
 
@@ -14,14 +11,20 @@ public abstract class NetworkConnection {
 
 	private ConnectionThread connThread = new ConnectionThread();
 	private Consumer<Serializable> onReceiveCallback;
+	private boolean error = false;
 	
 	public NetworkConnection(Consumer<Serializable> onReceiveCallback) throws Exception {
 		this.onReceiveCallback = onReceiveCallback;
 		connThread.setDaemon(true);
 	}
 	
-	public void startConnection() throws Exception {
+	public boolean startConnection() {
 		connThread.start();
+		if(error) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 	public void send(Serializable data) throws Exception {
@@ -31,8 +34,7 @@ public abstract class NetworkConnection {
 	public void closeConnection() throws Exception {
 		connThread.socket.close();
 	}
-
-	protected abstract boolean isServer();
+	
 	protected abstract String getIP();
 	protected abstract int getPort();
 	
@@ -42,8 +44,7 @@ public abstract class NetworkConnection {
 		
 		@Override
 		public void run() {
-			try (ServerSocket server = isServer() ? new ServerSocket(getPort()) : null;
-					Socket socket = isServer() ? server.accept() : new Socket(getIP(), getPort());
+			try (Socket socket =  new Socket(getIP(), getPort());
 					PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 					BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 				
@@ -57,6 +58,7 @@ public abstract class NetworkConnection {
 				}
 			} catch(Exception e) {
 				onReceiveCallback.accept("Connection closed");
+				error = true;
 			}
 		}
 	}

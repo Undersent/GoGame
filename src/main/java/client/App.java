@@ -8,6 +8,7 @@ import javax.swing.ImageIcon;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
@@ -31,7 +32,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import network.Client;
 import network.NetworkConnection;
-import network.Server;
 import view.Stone;
 
 public class App extends Application {
@@ -67,9 +67,7 @@ public class App extends Application {
 	
 	private TextArea messages = new TextArea();
 	
-	private boolean isServer = false;
-	
-	private NetworkConnection connection = isServer ? createServer() : createClient();
+	private Client connection;
 	
 	private String[] blackPoints;
 	private String[] whitePoints;
@@ -78,7 +76,6 @@ public class App extends Application {
 	
 	@Override
 	public void init() throws Exception {
-		connection.startConnection();
 
 	}
 
@@ -91,20 +88,26 @@ public class App extends Application {
      */
     private Scene makeMenuScene() {
 		BorderPane borderPane = new BorderPane();
+		
+		Label name = new Label("Go Game");
     	
 		vsPlayerButton = new Button("Gracz vs Gracz");
 		vsPlayerButton.setPrefWidth(300);
+		
 		vsBotButton = new Button("Gracz vs Komputer");
 		vsBotButton.setPrefWidth(300);
+		
 		quitButton = new Button("KONIEC");
 		quitButton.setPrefWidth(300);
 		
-		VBox menu = new VBox(20, vsPlayerButton, vsBotButton, quitButton);
+		VBox menu = new VBox(20, name, vsPlayerButton, vsBotButton, quitButton);
 		menu.setAlignment(Pos.CENTER);
+		VBox.setMargin(name, new Insets(15, 0, 0, 0));
+		VBox.setMargin(quitButton, new Insets(0, 30, 30, 30));
 		
 		borderPane.setCenter(menu);
 		
-		Scene menuScene = new Scene(borderPane, height, height);
+		Scene menuScene = new Scene(borderPane);
     	
 		menuScene.getStylesheets().add("client/style.css");
 		
@@ -277,10 +280,18 @@ public class App extends Application {
 			public void handle(MouseEvent arg0) {
 				primaryStage.setScene(gameScene);
 				try {
-					connection.send("NIEBOT");
+					connection = createClient();
+
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+
+				}
+				if(!connection.startConnection()) {
+					primaryStage.setScene(menuScene);
+	        		Alert alert = new Alert(AlertType.INFORMATION);
+	        		alert.setTitle("ERROR");
+	        		alert.setHeaderText(null);
+	        		alert.setContentText("Nie udalo polaczys sie z serwerem");
+	        		alert.showAndWait();
 				}
 			}
 		
@@ -316,6 +327,7 @@ public class App extends Application {
         
         primaryStage.setOnCloseRequest(e -> {
     		try {
+    			connection.send("QUIT");
 				connection.closeConnection();
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
@@ -377,18 +389,6 @@ public class App extends Application {
 	
 	@Override
 	public void stop() throws Exception {
-	}
-	
-	private Server createServer() {
-		try {
-			return new Server(8901, data -> {
-				Platform.runLater(() -> {
-					System.out.println(data.toString());
-				});
-			});
-		} catch (Exception e) {
-			return null;
-		}
 	}
 	
 	private Client createClient() {
@@ -460,6 +460,7 @@ public class App extends Application {
 				});
 			});
 		} catch (Exception e) {
+			System.out.println("nie udalo sie polaczyc");
 			return null;
 		}
 	}
