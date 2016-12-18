@@ -23,19 +23,20 @@ public class JustPut implements Strategy {
 	@Override
 	public void findBestMove() {
 		StoneColor stoneColor = null;
-	//	LinkedList<PointOnBoard> coloredPoints = new LinkedList<PointOnBoard>();
-	//	coloredPoints = adapter.getAllPoints();
-		System.out.println(adapter.getAllPoints().toString());
+		int outOfBoard =0;
 		for(PointOnBoard point : adapter.getAllPoints()){
 			stoneColor = adapter.getColor(point);
 			if (stoneColor.equals(GameController.StoneColor.NONE)) {
 				if(adapter.playOnPoint(point.getRow(), point.getCol())){
 					break;			
 				}else
-					continue;
-				
+					outOfBoard++;
+					continue;			
 				}
 			}
+		if(outOfBoard >= 19*19){
+			adapter.pass();
+		}
 		}
 	}
 

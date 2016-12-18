@@ -20,11 +20,19 @@ public class Server {
             while (true) {
                	Adapter adapter = new Adapter();
                	adapter.initializeBoard(19);
+               	/**
+               	 * Create two players <sockets> where players can join
+               	 */
                 Player playerB = new Player(listener.accept(), 'B', adapter );
                 Player playerW = new Player(listener.accept(), 'W', adapter );
+                /**
+                 * set opponents to players
+                 */
                 playerB.setOpponent(playerW);
                 playerW.setOpponent(playerB);
-          
+                /**
+                 * start threads
+                 */
                 playerB.start();
                 playerW.start();
             }
