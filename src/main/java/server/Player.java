@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import bots.JustPut;
 import gameLogic.Adapter;
+import server.messageDecorator.Stream;
 
 //GAME - PLAYER
 //LINIA 122 DODANY KOMENTARZ wyjasniajacy jak dzialaja terytoria
@@ -21,7 +22,7 @@ public class Player extends Thread {
 	private PrintWriter output;
 	private Adapter adapter;
 	private int blackCaptured=0, whiteCaptured =0; //blackCaptured - ile zlapal bialych 
-
+	private Stream stream;
 
 	/**
 	 * Constructs a handler thread for a given socket and mark initializes the
@@ -32,12 +33,13 @@ public class Player extends Thread {
 		this.adapter = adapter;
 		this.socket = socket;
 		this.mark = mark;
+		
 		try {
 			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			output = new PrintWriter(socket.getOutputStream(), true);
-			output.println("WELCOME " + mark);
-
-			output.println("MESSAGE Waiting for opponent to connect");
+			stream = new Stream(output);
+			stream.sendWelcome(mark);
+			stream.sendMessage("Waiting for opponent to connect");
 				
 		} catch (IOException e) {
 			System.out.println("Player died: " + e);
@@ -47,9 +49,6 @@ public class Player extends Thread {
 	/**
 	 * Accepts notification of who the opponent is.
 	 */
-	public void sendMessage(String command) {
-		output.println(command);
-	}
 
 	public void setOpponent(Player opponent) {
 		this.opponent = opponent;
@@ -72,6 +71,7 @@ public class Player extends Thread {
 	public void run() {
 		try {
 			output.println("MESSAGE All players connected");
+		
 	
 
 
@@ -86,23 +86,22 @@ public class Player extends Thread {
 					if (mark == adapter.getPlayer()) {
 						if (adapter.playOnPoint(row, col)) {
 							adapter.setPasses(0);
-							
-							opponent.sendMessage("POINTS " + adapter.toString());
-							output.println("POINTS " + adapter.toString());
+							opponent.stream.sendPoints(adapter.toString());
+							stream.sendPoints(adapter.toString());
 							if(mark == 'B'){
 								blackCaptured += adapter.getCaptured();
-								output.println("BLACK_POINTS "+ blackCaptured);
-								opponent.sendMessage("BLACK_POINTS "+ blackCaptured);
+								stream.sendBlackPoints(blackCaptured);
+								opponent.stream.sendBlackPoints(blackCaptured);
 							}else {
 								whiteCaptured += adapter.getCaptured();
-								output.println("WHITE_POINTS "+ whiteCaptured);
-								opponent.sendMessage("WHITE_POINTS "+ whiteCaptured);
+								stream.sendWhitePoints(whiteCaptured);
+								opponent.stream.sendWhitePoints(whiteCaptured);
 							}
 						} else {
-							output.println("MESSAGE move is impossible");
+							stream.sendMessage("move is impossible");
 						}
 					} else {
-						output.println("MESSAGE Wrong player");
+						stream.sendMessage("Wrong player");
 					}
 				} else if (command.startsWith("QUIT")) {
 					return;
@@ -111,7 +110,7 @@ public class Player extends Thread {
 					
 					if(adapter.getPlayer() == mark){
 					if(adapter.pass()){
-						output.println("COUNT_TERRITORY");
+						stream.sendCountTerritory();
 					}
 					}
 					/*
@@ -127,20 +126,20 @@ public class Player extends Thread {
 				} else if (command.startsWith("TERRITORY_B")) { 
 					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')+1));
 					int blackPoints = territoryPoints + blackCaptured;
-					output.println("BLACK_POINTS "+ blackPoints);
-					opponent.sendMessage("BLACK_POINTS "+ blackPoints);
-					opponent.sendMessage(command.substring(0, command.indexOf("!")));
+					stream.sendBlackPoints(blackPoints);
+					opponent.stream.sendBlackPoints(blackCaptured);
+					opponent.stream.sendConcreteString(command.substring(0, command.indexOf("!")));
 				} else if (command.startsWith("TERRITORY_W")){
 					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')+1));
 					int whitePoints = territoryPoints + whiteCaptured;
-					output.println("WHITE_POINTS "+ whitePoints);
-					opponent.sendMessage("WHITE_POINTS "+ whitePoints);
-					opponent.sendMessage(command.substring(0, command.indexOf("!")));
+					stream.sendWhitePoints(whitePoints);
+					opponent.stream.sendWhitePoints(whitePoints);
+					opponent.stream.sendConcreteString(command.substring(0, command.indexOf("!")));
 				} else if (command.startsWith("CHAT")){
-					opponent.sendMessage(command);
+					opponent.stream.sendConcreteString(command);
 				} else if (command.startsWith("WIN")) {
-					opponent.sendMessage(command);
-					output.println(command);
+					opponent.stream.sendConcreteString(command);
+					stream.sendConcreteString(command);
 				}
 
  
