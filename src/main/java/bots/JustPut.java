@@ -1,7 +1,5 @@
 package bots;
 
-import java.util.LinkedList;
-
 import gameLogic.Adapter;
 import gameLogic.GameController;
 import gameLogic.GameController.StoneColor;
@@ -10,7 +8,6 @@ import gameLogic.PointOnBoard;
 public class JustPut implements Strategy {
 	
 	private Adapter adapter;
-	private GameController game;
 	
 	public JustPut(Adapter adapter){
 		this.adapter=adapter;

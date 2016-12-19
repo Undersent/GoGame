@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
 
 /**
  * Provides game logic.
@@ -29,7 +28,8 @@ public class GameController {
     // Previous position after black played. For "ko rule".
     private HashMap<PointOnBoard, StoneColor> previousBlackPosition;
     private HashMap<PointOnBoard, StoneColor> previousWhitePosition;
-    private boolean passedPreviously;
+    @SuppressWarnings("unused")
+	private boolean passedPreviously;
     /**
      * True if any stone was removed this turn.
      */

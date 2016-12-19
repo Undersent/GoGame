@@ -2,7 +2,6 @@ package client;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -10,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
@@ -49,7 +47,7 @@ public class GoGame extends Application {
 		
 		borderPane.setCenter(menu);
 		
-		Scene menuScene = new Scene(borderPane);
+		Scene menuScene = new Scene(borderPane, height, height);
     	
 		menuScene.getStylesheets().add("client/style.css");
 		

@@ -1,4 +1,4 @@
-.button {
+.menuButton {
     -fx-background-color: 
         linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
         linear-gradient(#020b02, #3a3a3a),
@@ -13,12 +13,22 @@
     -fx-text-fill: #333333;
     -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
 }
-.button Text {
+.menuButton Text {
     -fx-effect: dropshadow( one-pass-box , white , 0, 0.0 , 0 , 1 );
 }
 
-.label {
+.title {
 	-fx-font-family: "Helvetica";
     -fx-font-size: 36px;
     -fx-font-weight: bold;
+}
+
+#menu {
+	-fx-background-image: url("../img/go_board.jpg");
+	-fx-background-size: 370, 370;
+	-fx-background-repeat: no-repeat;
+}
+
+.root { 
+	-fx-focus-color: transparent;
 }

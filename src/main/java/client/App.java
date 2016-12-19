@@ -3,15 +3,14 @@ package client;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-
+import bots.JustPut;
+import gameLogic.Adapter;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -31,7 +30,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import network.Client;
-import network.NetworkConnection;
 import view.Stone;
 
 public class App extends Application {
@@ -48,11 +46,17 @@ public class App extends Application {
 	
 	private boolean countTerritory = false;
 	private boolean territoryChecked = false;
+
+	private Adapter adapter;
+	private JustPut bot;
 	
-	private Label xl= new Label("Punkty B");
-	private Label yl = new Label("Punkty W");
-	private Label pB= new Label("");
-	private Label pW = new Label("");
+	private boolean botFlag = false;
+	
+	private Label pB= new Label("0");
+	private Label pW = new Label("0");
+	
+	private List<Stone> whiteStones = new ArrayList<Stone>();
+	private List<Stone> blackStones = new ArrayList<Stone>();
 	
 	private List<Stone> territoryStones = new ArrayList<Stone>();
 	private List<Stone> stones = new ArrayList<Stone>();
@@ -73,32 +77,29 @@ public class App extends Application {
 	private String[] whitePoints;
 
 	private List<Stone> enemyStones = new ArrayList<Stone>();
-	
-	@Override
-	public void init() throws Exception {
-
-	}
 
     public static void main(String[] args) throws Exception {
         launch(args);
     }
 	
-    /*
-     * Tworzy scene z menu startowym
-     */
     private Scene makeMenuScene() {
 		BorderPane borderPane = new BorderPane();
+		borderPane.setId("menu");
 		
 		Label name = new Label("Go Game");
+		name.getStyleClass().add("title");
     	
 		vsPlayerButton = new Button("Gracz vs Gracz");
 		vsPlayerButton.setPrefWidth(300);
+		vsPlayerButton.getStyleClass().add("menuButton");
 		
 		vsBotButton = new Button("Gracz vs Komputer");
 		vsBotButton.setPrefWidth(300);
+		vsBotButton.getStyleClass().add("menuButton");
 		
 		quitButton = new Button("KONIEC");
 		quitButton.setPrefWidth(300);
+		quitButton.getStyleClass().add("menuButton");
 		
 		VBox menu = new VBox(20, name, vsPlayerButton, vsBotButton, quitButton);
 		menu.setAlignment(Pos.CENTER);
@@ -125,6 +126,8 @@ public class App extends Application {
         whiteStone = new Image("img/whiteStone.png", gridWidth, gridWidth, false, false);
     	
     	primaryStage.getIcons().add(new Image("img/icon.jpg"));
+    	
+    	messages.setEditable(false);
     	
         primaryStage.setTitle("Go Game");
         primaryStage.setResizable(false);
@@ -154,12 +157,25 @@ public class App extends Application {
         		if(x==19) x=18;
         		if(y==19) y=18;
         		if(!countTerritory) {
-	        		try {
-						connection.send("MOVE " + y + "," + x);
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+        			if(!botFlag) {
+		        		try {
+							connection.send("MOVE " + y + "," + x);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+		        		drawGrid(gc);
+        			} else {
+        				if(adapter.playOnPoint(y, x)) {
+        					blackStones.add(new Stone(x, y, gridWidth, gridWidth));
+        					adapter.setPasses(0);
+            				bot.findBestMove();
+            				whiteStones.add(new Stone(adapter.getWhitePoints().getLast().getCol(),adapter.getWhitePoints().getLast().getRow(),gridWidth,gridWidth));
+            				adapter.setPasses(0);
+        				}
+
+        				drawGrid(gc);
+        			}
         		} else {
         			boolean canAddStone = true;
         			for(Stone s: territoryStones) {
@@ -185,30 +201,46 @@ public class App extends Application {
         });
         
         drawGrid(gc);
+        
         borderPane.setCenter(canvas);
         
         messages.setPrefSize(250, height - 40);
+        
         TextField input = new TextField();
+        
         input.setOnAction(event -> {
         	String message = input.getText();
+        	
         	input.clear();
         	
-        	try {
-				connection.send("CHAT " + message);
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+        	if(!botFlag) {
+	        	try {
+					connection.send("CHAT " + message);
+				} catch (Exception e1) {
+					System.err.println("chat message error");
+				}
+        	}
         	
         	messages.appendText(message + "\n");
         });
+        
         messages.setWrapText(true);
+        
         VBox chat = new VBox(20, messages, input);
         chat.setPrefSize(250, height);
         borderPane.setRight(chat);
+        VBox.setMargin(messages, new Insets(0,15,0,15));
+        VBox.setMargin(input, new Insets(0,15,0,15));
         
-        HBox playersLabels = new HBox(50, new Label("gracz1"), new Label("gracz2"));
+        HBox playersLabels = new HBox(50, new Label("gracz B"), new Label("gracz W"));
+        HBox.setMargin(playersLabels.getChildren().get(0), new Insets(15, 0, 0, 15));
+        HBox.setMargin(playersLabels.getChildren().get(1), new Insets(15, 15, 0, 0));
+        playersLabels.setAlignment(Pos.CENTER);
+        
         HBox playersIcons = new HBox(50, new ImageView(blackStone), new ImageView(whiteStone));
+        HBox.setMargin(playersIcons.getChildren().get(0), new Insets(15, 0, 0, 15));
+        HBox.setMargin(playersIcons.getChildren().get(1), new Insets(15, 15, 0, 0));
+        playersIcons.setAlignment(Pos.CENTER);
         
         Button passButton = new Button("PASS");
         Button resignButton = new Button("RESIGN");
@@ -225,21 +257,22 @@ public class App extends Application {
 				try {
 					connection.send(message);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				territoryChecked = true;
 				territory.setVisible(false);
 			}});
         HBox bottomButoons = new HBox(100, passButton, resignButton, territory);
+        bottomButoons.setAlignment(Pos.CENTER);
         borderPane.setBottom(bottomButoons);
+        HBox.setMargin(passButton, new Insets(15, 0, 15, 0));
         
         passButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 
 			@Override
 			public void handle(MouseEvent arg0) {
 				try {
-					connection.send("PASS");
+					if(!botFlag) connection.send("PASS");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -248,9 +281,12 @@ public class App extends Application {
         	
         });
         
-
+        HBox pointsPanel = new HBox(50, pB, pW);
+        HBox.setMargin(pointsPanel.getChildren().get(0), new Insets(15, 15, 0, 0));
+        HBox.setMargin(pointsPanel.getChildren().get(1), new Insets(15, 0, 0, 15));
+        pointsPanel.setAlignment(Pos.CENTER);
         
-        VBox infoPanel = new VBox(20, playersLabels, playersIcons, xl, yl, pB, pW);
+        VBox infoPanel = new VBox(20, playersLabels, playersIcons, pointsPanel);
         borderPane.setLeft(infoPanel);
 
         Scene gameScene = new Scene(borderPane);
@@ -262,10 +298,22 @@ public class App extends Application {
 			@Override
 			public void handle(MouseEvent arg0) {
 				try {
-					connection.send("QUIT");
-					connection.closeConnection();
+					if(!botFlag) {
+						connection.send("QUIT");
+						connection.closeConnection();
+						connection = null;
+						territoryStones.clear();
+						enemyStones.clear();
+						whitePoints = null;
+						blackPoints = null;
+					} else {
+						adapter = null;
+						bot = null;
+						blackStones.clear();;
+						whiteStones.clear();
+						botFlag = false;
+					}		
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
@@ -281,17 +329,9 @@ public class App extends Application {
 				primaryStage.setScene(gameScene);
 				try {
 					connection = createClient();
-
+					connection.startConnection();
 				} catch (Exception e) {
 
-				}
-				if(!connection.startConnection()) {
-					primaryStage.setScene(menuScene);
-	        		Alert alert = new Alert(AlertType.INFORMATION);
-	        		alert.setTitle("ERROR");
-	        		alert.setHeaderText(null);
-	        		alert.setContentText("Nie udalo polaczys sie z serwerem");
-	        		alert.showAndWait();
 				}
 			}
 		
@@ -303,13 +343,10 @@ public class App extends Application {
 			@Override
 			public void handle(MouseEvent arg0) {
 				primaryStage.setScene(gameScene);
-				try {
-					connection.send("BOT");
-
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					//e.printStackTrace();
-				}
+				adapter = new Adapter();
+				adapter.initializeBoard(gridSize);
+				bot = new JustPut(adapter);
+				botFlag = true;
 			}
 		
         	
@@ -327,14 +364,18 @@ public class App extends Application {
         
         primaryStage.setOnCloseRequest(e -> {
     		try {
-    			connection.send("QUIT");
-				connection.closeConnection();
+    			if(!botFlag) {
+	    			connection.send("QUIT");
+					connection.closeConnection();
+    			}
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
         	Platform.exit();
         });
+        
+        gameScene.getStylesheets().add("client/style.css");
         
         primaryStage.setScene(menuScene);
         primaryStage.show();
@@ -344,14 +385,14 @@ public class App extends Application {
     	gc.setFill(Color.BLACK);
     	gc.drawImage(new Image("img/go_board.jpg", height, height, false, false), 0, 0);
     	gc.setStroke(Color.BLACK);
-        gc.setLineWidth(2);
+        gc.setLineWidth(1);
         for(int i=0; i <= gridSize ; i++) {
         	gc.strokeLine((gridWidth + i*gridWidth), gridWidth, (gridWidth + i*gridWidth), gridWidth*19);
         	gc.strokeLine(gridWidth, (gridWidth + i*gridWidth), gridWidth*19, (gridWidth + i*gridWidth));
         	if(i == 3 || i == 9 || i == 15) {
-        		gc.fillOval((gridWidth + i*gridWidth - 4), (gridWidth + 3*gridWidth - 4), 8, 8);
-        		gc.fillOval((gridWidth + i*gridWidth - 4), (gridWidth + 9*gridWidth - 4), 8, 8);
-        		gc.fillOval((gridWidth + i*gridWidth - 4), (gridWidth + 15*gridWidth - 4), 8, 8);
+        		gc.fillOval((gridWidth + i*gridWidth - 2), (gridWidth + 3*gridWidth - 2), 4, 4);
+        		gc.fillOval((gridWidth + i*gridWidth - 2), (gridWidth + 9*gridWidth - 2), 4, 4);
+        		gc.fillOval((gridWidth + i*gridWidth - 2), (gridWidth + 15*gridWidth - 2), 4, 4);
         	}
         }
         String[] point = null;
@@ -385,11 +426,16 @@ public class App extends Application {
         	gc.setFill(Color.BLUE);
         	gc.fillOval(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
         }
+        for(Stone s: blackStones) {
+        	gc.setFill(Color.BLACK);
+        	gc.fillOval(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
+        }
+        for(Stone s: whiteStones) {
+        	gc.setFill(Color.WHITE);
+        	gc.fillOval(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
+        }
+        
     }
-	
-	@Override
-	public void stop() throws Exception {
-	}
 	
 	private Client createClient() {
 		try {
@@ -455,7 +501,6 @@ public class App extends Application {
 		        		} else {
 		        			alert.setContentText("DRAW!");
 		        		}
-		        		alert.showAndWait();
 					}
 				});
 			});

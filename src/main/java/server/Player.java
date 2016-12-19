@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import bots.JustPut;
 import gameLogic.Adapter;
 import server.messageDecorator.Stream;
 
@@ -40,7 +39,7 @@ public class Player extends Thread {
 			stream = new Stream(output);
 			stream.sendWelcome(mark);
 			stream.sendMessage("Waiting for opponent to connect");
-				
+
 		} catch (IOException e) {
 			System.out.println("Player died: " + e);
 		}
@@ -70,8 +69,7 @@ public class Player extends Thread {
 	 */
 	public void run() {
 		try {
-			output.println("MESSAGE All players connected");
-		
+			stream.sendMessage("All players connected");
 	
 
 

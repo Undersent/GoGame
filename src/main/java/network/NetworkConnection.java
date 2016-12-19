@@ -11,20 +11,14 @@ public abstract class NetworkConnection {
 
 	private ConnectionThread connThread = new ConnectionThread();
 	private Consumer<Serializable> onReceiveCallback;
-	private boolean error = false;
 	
 	public NetworkConnection(Consumer<Serializable> onReceiveCallback) throws Exception {
 		this.onReceiveCallback = onReceiveCallback;
 		connThread.setDaemon(true);
 	}
 	
-	public boolean startConnection() {
+	public void startConnection() {
 		connThread.start();
-		if(error) {
-			return false;
-		} else {
-			return true;
-		}
 	}
 	
 	public void send(Serializable data) throws Exception {
@@ -58,7 +52,6 @@ public abstract class NetworkConnection {
 				}
 			} catch(Exception e) {
 				onReceiveCallback.accept("Connection closed");
-				error = true;
 			}
 		}
 	}

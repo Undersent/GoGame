@@ -1,7 +1,5 @@
 package gameLogic;
 
-import java.io.Serializable;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import gameLogic.GameController.StoneColor;
@@ -10,7 +8,6 @@ public class Adapter{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 593744289599985759L;
 	private LinkedList<PointOnBoard> blackPoints = new LinkedList<PointOnBoard>();
 	private LinkedList<PointOnBoard> whitePoints = new LinkedList<PointOnBoard>();
 	private LinkedList<PointOnBoard> coloredPoints = new LinkedList<PointOnBoard>();
@@ -111,7 +108,7 @@ public class Adapter{
 	  public boolean pass(){
 		  gameController.pass();
 		  passes+=1;
-		  if(passes == 2)
+		  if(passes == 3)
 			  return true;
 		  return false;
 	  }
