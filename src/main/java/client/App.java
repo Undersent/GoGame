@@ -501,6 +501,7 @@ public class App extends Application {
 		        		} else {
 		        			alert.setContentText("DRAW!");
 		        		}
+		        		alert.showAndWait();
 					}
 				});
 			});
@@ -510,7 +511,7 @@ public class App extends Application {
 		}
 	}
 	
-	public void updateStones() {
+	private void updateStones() {
 		String[] point = null;
     	for(int i=0; i<blackPoints.length;i++) {
     		point = blackPoints[i].split(",");
@@ -530,7 +531,7 @@ public class App extends Application {
     	}
 	}
 	
-	public void updatePoints(String points) {
+	private void updatePoints(String points) {
 		int endOfBlackPoints = points.indexOf('B') - 1;
 		blackPoints = points.substring(0, endOfBlackPoints).split(";");
 		whitePoints = points.substring(endOfBlackPoints + 2).split(";");
