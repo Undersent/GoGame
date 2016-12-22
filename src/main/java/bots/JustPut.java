@@ -1,5 +1,7 @@
 package bots;
 
+import java.util.LinkedList;
+
 import gameLogic.Adapter;
 import gameLogic.GameController;
 import gameLogic.GameController.StoneColor;
@@ -8,6 +10,7 @@ import gameLogic.PointOnBoard;
 public class JustPut implements Strategy {
 	
 	private Adapter adapter;
+	private GameController game;
 	
 	public JustPut(Adapter adapter){
 		this.adapter=adapter;
@@ -20,21 +23,19 @@ public class JustPut implements Strategy {
 	@Override
 	public void findBestMove() {
 		StoneColor stoneColor = null;
-		int outOfBoard =0;
+	//	LinkedList<PointOnBoard> coloredPoints = new LinkedList<PointOnBoard>();
+	//	coloredPoints = adapter.getAllPoints();
+		//System.out.println(adapter.getAllPoints().toString());
 		for(PointOnBoard point : adapter.getAllPoints()){
 			stoneColor = adapter.getColor(point);
 			if (stoneColor.equals(GameController.StoneColor.NONE)) {
 				if(adapter.playOnPoint(point.getRow(), point.getCol())){
 					break;			
 				}else
-					outOfBoard++;
-					continue;			
+					continue;
+				
 				}
 			}
-		if(outOfBoard >= 19*19){
-			adapter.pass();
-		}
 		}
 	}
-
 

@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import gameLogic.Adapter;
-import server.messageDecorator.Stream;
+import server.messageDecorator.*;
 
 //GAME - PLAYER
 //LINIA 122 DODANY KOMENTARZ wyjasniajacy jak dzialaja terytoria
@@ -21,7 +21,15 @@ public class Player extends Thread {
 	private PrintWriter output;
 	private Adapter adapter;
 	private int blackCaptured=0, whiteCaptured =0; //blackCaptured - ile zlapal bialych 
-	private Stream stream;
+	//private Text stream;
+	
+	private Text blackPointsText;
+	private Text whitePointsText;
+	private Text welcomeText;
+	private Text messageText;
+	private Text pointsText;
+	private Text countTerritoryText;
+	private Text concreteStringText;
 
 	/**
 	 * Constructs a handler thread for a given socket and mark initializes the
@@ -36,12 +44,17 @@ public class Player extends Thread {
 		try {
 			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			output = new PrintWriter(socket.getOutputStream(), true);
-			stream = new Stream(output);
-			stream.sendWelcome(mark);
-			stream.sendMessage("Waiting for opponent to connect");
+			welcomeText = new WelcomeDecorator(new Stream(), output);
+			messageText = new MessageDecorator(new Stream(), output);
+
+		//	 output.println("WELCOME " + mark);
+	      //      output.println("MESSAGE Waiting for opponent to connect");
+						
+			welcomeText.sendWithString(String.valueOf(mark));
+			messageText.sendWithString("Waiting for opponent to connect");
 
 		} catch (IOException e) {
-			System.out.println("Player died: " + e);
+			System.out.println("Played: " + e);
 		}
 	}
 
@@ -69,10 +82,17 @@ public class Player extends Thread {
 	 */
 	public void run() {
 		try {
-			stream.sendMessage("All players connected");
-	
-
-
+			
+			 
+			blackPointsText = new WhitePointsDecorator(new Stream(), output);
+			whitePointsText = new WhitePointsDecorator(new Stream(), output);
+			pointsText = new PointsDecorator(new Stream(), output);
+			countTerritoryText = new CountTerritoryDecorator(new Stream(), output);
+			concreteStringText = new ConcreteStringDecorator(new Stream(), output);
+			
+			messageText.sendWithString("All players connected");
+			
+			
 			// Repeatedly get commands from the client and process them.
 			while (true) {
 				String command = input.readLine();
@@ -84,22 +104,23 @@ public class Player extends Thread {
 					if (mark == adapter.getPlayer()) {
 						if (adapter.playOnPoint(row, col)) {
 							adapter.setPasses(0);
-							opponent.stream.sendPoints(adapter.toString());
-							stream.sendPoints(adapter.toString());
+							opponent.pointsText.sendWithString(adapter.toString());
+							pointsText.sendWithString(adapter.toString());
 							if(mark == 'B'){
 								blackCaptured += adapter.getCaptured();
-								stream.sendBlackPoints(blackCaptured);
-								opponent.stream.sendBlackPoints(blackCaptured);
+								blackPointsText.sendWithInt(blackCaptured);
+								opponent.blackPointsText.sendWithInt(blackCaptured);
+
 							}else {
 								whiteCaptured += adapter.getCaptured();
-								stream.sendWhitePoints(whiteCaptured);
-								opponent.stream.sendWhitePoints(whiteCaptured);
+								whitePointsText.sendWithInt(whiteCaptured);
+								opponent.whitePointsText.sendWithInt(whiteCaptured);
 							}
 						} else {
-							stream.sendMessage("move is impossible");
+							messageText.sendWithString("move is impossible");
 						}
 					} else {
-						stream.sendMessage("Wrong player");
+						messageText.sendWithString("Wrong player");
 					}
 				} else if (command.startsWith("QUIT")) {
 					return;
@@ -108,7 +129,7 @@ public class Player extends Thread {
 					
 					if(adapter.getPlayer() == mark){
 					if(adapter.pass()){
-						stream.sendCountTerritory();
+						countTerritoryText.send();
 					}
 					}
 					/*
@@ -124,20 +145,20 @@ public class Player extends Thread {
 				} else if (command.startsWith("TERRITORY_B")) { 
 					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')+1));
 					int blackPoints = territoryPoints + blackCaptured;
-					stream.sendBlackPoints(blackPoints);
-					opponent.stream.sendBlackPoints(blackCaptured);
-					opponent.stream.sendConcreteString(command.substring(0, command.indexOf("!")));
+					blackPointsText.sendWithInt(blackPoints);
+					opponent.blackPointsText.sendWithInt(blackCaptured);
+					opponent.concreteStringText.sendWithString(command.substring(0, command.indexOf("!")));
 				} else if (command.startsWith("TERRITORY_W")){
 					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')+1));
 					int whitePoints = territoryPoints + whiteCaptured;
-					stream.sendWhitePoints(whitePoints);
-					opponent.stream.sendWhitePoints(whitePoints);
-					opponent.stream.sendConcreteString(command.substring(0, command.indexOf("!")));
+					whitePointsText.sendWithInt(whitePoints);
+					opponent.whitePointsText.sendWithInt(whitePoints);
+					opponent.concreteStringText.sendWithString(command.substring(0, command.indexOf("!")));
 				} else if (command.startsWith("CHAT")){
-					opponent.stream.sendConcreteString(command);
+					opponent.concreteStringText.sendWithString(command);
 				} else if (command.startsWith("WIN")) {
-					opponent.stream.sendConcreteString(command);
-					stream.sendConcreteString(command);
+					opponent.concreteStringText.sendWithString(command);
+					concreteStringText.sendWithString(command);
 				}
 
  
