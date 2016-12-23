@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>160</y>
+      <w>210</w>
+      <h>500</h>
+    </coordinates>
+    <panel_attributes>GameController
+--
+-isBLackMove
+-lastMove
+-numberOfDead
+-passedPreviously
+-previousBlackPosition
+-previousWhitePosition
+-removedStone
+-size
+-stones
+--
++GameController(int)
+-addStone(PointOnBoard): void
+-changePlayer(): void
++getAllPoints(): Iterable&lt;PointOnBoard&gt;
+-getAllValidAdjacentLocations(PointOnBoard):Set&lt;PointOnBoard&gt;
++getCaptured(): int
++getColor(PointOnBoard): StoneColor
++GetLastMove(): PointOnBoard
++getPlayer(): char
+-getPointAt(int, int): PointOnBoard
+-initializeBoard(): void
+-isDead(PointOnBoard, Set&lt;PointOnBoard&gt;): boolean
+-isOccupied(PointOnBoard): boolean
+-isOutOfBoundary(int, int): boolean
+-isSuicide(PointOnBoard): boolean
++pass(); void
++playAt(int, int): boolean
+-removeIfDead(PointOnBoard): void
+-removeStone(PointOnBoard): void
+-savePosition(): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>310</x>
+      <y>540</y>
+      <w>210</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>PointOnBoard
+--
+-col
+-row
+--
++PointOnBoard(int,int)
++equals(Object): boolean
++getCol(): int
++getRow(): int
++hashCode(): int
++toString(): String</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>300</x>
+      <y>160</y>
+      <w>210</w>
+      <h>330</h>
+    </coordinates>
+    <panel_attributes>Adapter
+--
+-blackPoints
+-coloredPoints
+-gameController
+-passes
+-whitePoints
+--
++getAllColoredPoints(): LinkedLIst&lt;PointOnBoard&gt;
++getAllPoints(): Iterale&lt;PointOnBoard&gt;
++getBLackPoints(): LInkedLIst&lt;PointOnBoard&gt;
++getCaptured(): int
++getColor(PointsOnBoard): StoneColor
++getGame(): GameCOntroller
++getPlayer(): char
++GetWhitePoints():LinkedList&lt;PointOnBoard&gt;
++initializeBoard(int): void
++pass(): boolean
++playOnPoint(int, int): boolean
++setPasses(int): void
++toString()String</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>230</x>
+      <y>0</y>
+      <w>210</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Server
+--
+--
+main(String[]): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>580</x>
+      <y>0</y>
+      <w>210</w>
+      <h>330</h>
+    </coordinates>
+    <panel_attributes>Player
+--
+-adapter
+-blackCaptured
+-blackPointsText
+-concereStringText
+-countTerritoryText
+-input
+-mark
+-massageText
+-opponent
+-output
+-pointsTxt
+-socket
+-welcomeText
+-whiteCaptured
+-whitePointsText
+--
++Player(Soscket, char, Adapter)
++run(): void
++setOpponent(Player): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>820</x>
+      <y>120</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Decorator
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>430</x>
+      <y>30</y>
+      <w>170</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;150.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>780</x>
+      <y>30</y>
+      <w>120</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>500</x>
+      <y>200</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>80.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>200</x>
+      <y>230</y>
+      <w>120</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>100.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>200</x>
+      <y>540</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;110.0;10.0</additional_attributes>
+  </element>
+</diagram>

@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>10</x>
+      <y>160</y>
+      <w>210</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;interface&gt;&gt;
+Stream
+--
+--
++send(): void
++sendWithInt(int): void
++sendWithString(String): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>220</x>
+      <y>0</y>
+      <w>210</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;interface&gt;&gt;
+Text
+--
+--
++send(): void
++sendWithInt(int): void
++sendWithString(String): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>100</x>
+      <y>100</y>
+      <w>140</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>120.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>430</x>
+      <y>160</y>
+      <w>210</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;abstract&gt;&gt;
+Text
+--
+- decoratedText : Text
+- output : PrintWriter 
+--
++TextDecorator(Text)
++send(): void
++sendWithInt(int): void
++sendWithString(String): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>360</y>
+      <w>210</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>WelcomeDecorator
+--
+- mark : String
+- output : PrintWriter 
+--
++WelcomeDecorator(Text, PrintWriter)
++sendWithString(String): void
+-setMessage(): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>420</x>
+      <y>100</y>
+      <w>140</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;120.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>240</x>
+      <y>360</y>
+      <w>210</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>WhitePointsDecoratorDecorator
+--
+- whiteCaptured : int
+- output : PrintWriter 
+--
++WhitePointsDecorator(Text, PrintWriter)
++sendWithInt(String): void
+-setMessage(): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>490</x>
+      <y>360</y>
+      <w>210</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>BlackPointsDecorator
+--
+- blackCaptured : int
+- output : PrintWriter 
+--
++BlackPointsDecorator(Text, PrintWriter)
++sendWithInt(String): void
+-setMessage(): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>730</x>
+      <y>360</y>
+      <w>210</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>ConcreteStringDecorator
+--
+- string : String
+- output : PrintWriter 
+--
++ConcreteStringDecorator(Text, PrintWriter)
++sendWithString(String): void
+-setMessage(): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>980</x>
+      <y>360</y>
+      <w>210</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>CountTerritoryDecorator
+--
+- output : PrintWriter 
+--
++CountTerritoryDecorator(Text, PrintWriter)
++send(): void
+-setMessage(): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1530</x>
+      <y>360</y>
+      <w>210</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>PointsDecorator
+--
+- points : String
+- output : PrintWriter 
+--
++PointsDecorator(Text, PrintWriter)
++sendWithString(String): void
+-setMessage(): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1260</x>
+      <y>360</y>
+      <w>210</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>MessageDecorator
+--
+- message : String
+- output : PrintWriter 
+--
++MessageDecorator(Text, PrintWriter)
++sendWithString(String): void
+-setMessage(): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>90</x>
+      <y>260</y>
+      <w>360</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>340.0;10.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>330</x>
+      <y>260</y>
+      <w>150</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>130.0;10.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>480</x>
+      <y>260</y>
+      <w>140</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;120.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>530</x>
+      <y>260</y>
+      <w>330</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;310.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>600</x>
+      <y>260</y>
+      <w>520</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;500.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>630</x>
+      <y>260</y>
+      <w>760</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;540.0;10.0;740.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>620</x>
+      <y>220</y>
+      <w>1050</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;840.0;10.0;1030.0;140.0</additional_attributes>
+  </element>
+</diagram>
