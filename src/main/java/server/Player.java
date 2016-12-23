@@ -84,7 +84,7 @@ public class Player extends Thread {
 		try {
 			
 			 
-			blackPointsText = new WhitePointsDecorator(new Stream(), output);
+			blackPointsText = new BlackPointsDecorator(new Stream(), output);
 			whitePointsText = new WhitePointsDecorator(new Stream(), output);
 			pointsText = new PointsDecorator(new Stream(), output);
 			countTerritoryText = new CountTerritoryDecorator(new Stream(), output);
@@ -96,7 +96,7 @@ public class Player extends Thread {
 			// Repeatedly get commands from the client and process them.
 			while (true) {
 				String command = input.readLine();
-
+				
 				if (command.startsWith("MOVE") ) {
 					int row = Integer.parseInt(command.substring(5, command.indexOf(',')));
 					int col = Integer.parseInt(command.substring(command.indexOf(',') + 1));
@@ -128,25 +128,15 @@ public class Player extends Thread {
 				}  else if (command.startsWith("PASS")) {
 					
 					if(adapter.getPlayer() == mark){
-					if(adapter.pass()){
-						countTerritoryText.send();
+						if(adapter.pass()){
+							countTerritoryText.send();
+						}
 					}
-					}
-					/*
-					 * TUTAJ WYSYLAM PRZECIWNIKOWI TERYTORIUM 
-					 *  LICZE territoryPoints CZYLI TYLE ILE DOSTAL PO WYKRZYKNIKU
-					 *  i dodaje do capturedPoints czyli tyle ile przejal wrogow
-					 *   NASTEPNIE WYSYLAM JE Tobie jako laczna sume punktow
-					 * "POINTS_W <liczba punktow zdobytych w calej grze>
-					 * Zastanawiam sie jeszcze aby wysylac Ci kto wygral, ale
-					 * to juz chyba mozna w kliencie jebnac po prostu porownujesz kto wiecej punktow
-					 * ma i wyswietlasz odpowiedni komunikat
-					 */
 				} else if (command.startsWith("TERRITORY_B")) { 
 					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')+1));
 					int blackPoints = territoryPoints + blackCaptured;
 					blackPointsText.sendWithInt(blackPoints);
-					opponent.blackPointsText.sendWithInt(blackCaptured);
+					opponent.blackPointsText.sendWithInt(blackPoints);
 					opponent.concreteStringText.sendWithString(command.substring(0, command.indexOf("!")));
 				} else if (command.startsWith("TERRITORY_W")){
 					int territoryPoints = Integer.parseInt(command.substring(command.indexOf('!')+1));

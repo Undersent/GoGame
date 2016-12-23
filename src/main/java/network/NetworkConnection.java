@@ -12,26 +12,48 @@ public abstract class NetworkConnection {
 	private ConnectionThread connThread = new ConnectionThread();
 	private Consumer<Serializable> onReceiveCallback;
 	
+	/*
+	 * Sign consumer
+	 */
 	public NetworkConnection(Consumer<Serializable> onReceiveCallback) throws Exception {
 		this.onReceiveCallback = onReceiveCallback;
 		connThread.setDaemon(true);
 	}
 	
+	/*
+	 * Starts connection thread
+	 */
 	public void startConnection() {
 		connThread.start();
 	}
 	
+	/*
+	 * Sends data
+	 */
 	public void send(Serializable data) throws Exception {
-		connThread.out.println(data);;
+		connThread.out.println(data);
 	}
 	
+	/*
+	 * Closes connection
+	 */
 	public void closeConnection() throws Exception {
 		connThread.socket.close();
 	}
 	
+	/*
+	 * Returns ip
+	 */
 	protected abstract String getIP();
+	
+	/*
+	 * Returns port
+	 */
 	protected abstract int getPort();
 	
+	/*
+	 * Custom thread class for connection
+	 */
 	private class ConnectionThread extends Thread {
 		private Socket socket;
 		private PrintWriter out;

@@ -46,24 +46,25 @@ public class App extends Application {
 	
 	private boolean countTerritory = false;
 	private boolean territoryChecked = false;
-
+	private boolean botFlag = false;
+	private boolean argue = false;
+	
 	private Adapter adapter;
 	private JustPut bot;
-	
-	private boolean botFlag = false;
-	
+
 	private Label pB= new Label("0");
 	private Label pW = new Label("0");
 	
 	private List<Stone> whiteStones = new ArrayList<Stone>();
 	private List<Stone> blackStones = new ArrayList<Stone>();
-	
 	private List<Stone> territoryStones = new ArrayList<Stone>();
 	private List<Stone> stones = new ArrayList<Stone>();
+	private List<Stone> enemyStones = new ArrayList<Stone>();
 	
 	private Button vsPlayerButton;
 	private Button vsBotButton;
 	private Button quitButton;
+	private Button resignButton;
 	private Button territory= new Button("Potwiedz");
 	
 	private Image blackStone;
@@ -75,13 +76,17 @@ public class App extends Application {
 	
 	private String[] blackPoints;
 	private String[] whitePoints;
-
-	private List<Stone> enemyStones = new ArrayList<Stone>();
-
+	
+	/*
+	 * Starts the application
+	 */
     public static void main(String[] args) throws Exception {
         launch(args);
     }
 	
+    /*
+     * Returns scene for menu
+     */
     private Scene makeMenuScene() {
 		BorderPane borderPane = new BorderPane();
 		borderPane.setId("menu");
@@ -115,31 +120,19 @@ public class App extends Application {
 		return menuScene;
     }
     
-    @Override
-    public void start(Stage primaryStage) {
-    	Rectangle2D screen = Screen.getPrimary().getBounds();
-    	double firstHeight = screen.getHeight() * 0.6;
-    	gridWidth = (int) firstHeight/20;
-    	height = gridWidth * 20;
-
-        blackStone = new Image("img/blackStone.png", gridWidth, gridWidth, false, false);
-        whiteStone = new Image("img/whiteStone.png", gridWidth, gridWidth, false, false);
-    	
-    	primaryStage.getIcons().add(new Image("img/icon.jpg"));
-    	
+    /*
+     * Returns game board
+     */
+    private Scene makeGameScene() {
     	messages.setEditable(false);
+    	BorderPane borderPane = new BorderPane();
     	
-        primaryStage.setTitle("Go Game");
-        primaryStage.setResizable(false);
-        BorderPane borderPane = new BorderPane();
-        
-        Canvas canvas = new Canvas(height,height);
+    	Canvas canvas = new Canvas(height,height);
         gc = canvas.getGraphicsContext2D();
-        //canvas.setCursor(Cursor.NONE);
-        canvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
-        	public void handle(MouseEvent e) {
 
-        		
+        canvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
+        	@Override
+        	public void handle(MouseEvent e) {
         		drawGrid(gc);
         		int x = (int) (e.getX()-gridWidth/2)/gridWidth;
         		int y = (int) (e.getY()-gridWidth/2)/gridWidth;
@@ -161,7 +154,6 @@ public class App extends Application {
 		        		try {
 							connection.send("MOVE " + y + "," + x);
 						} catch (Exception e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 		        		drawGrid(gc);
@@ -173,7 +165,6 @@ public class App extends Application {
             				whiteStones.add(new Stone(adapter.getWhitePoints().getLast().getCol(),adapter.getWhitePoints().getLast().getRow(),gridWidth,gridWidth));
             				adapter.setPasses(0);
         				}
-
         				drawGrid(gc);
         			}
         		} else {
@@ -181,9 +172,9 @@ public class App extends Application {
         			for(Stone s: territoryStones) {
         				Rectangle2D r = new Rectangle2D(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
         				if(r.contains(e.getX(), e.getY())) {
-        					canAddStone = false;
-        					territoryStones.remove(s);
-        					break;
+    						canAddStone = false;
+    						territoryStones.remove(s);
+    						break;
         				}
         			}
         			for(Stone s: stones) {
@@ -193,11 +184,19 @@ public class App extends Application {
         					break;
         				}
         			}
+
+        			for(Stone s: enemyStones) {
+        				Rectangle2D r = new Rectangle2D(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
+        				if(r.contains(e.getX(), e.getY())) {
+        					canAddStone = false;
+        					break;
+        				}
+        			}
+
         			if(canAddStone && !territoryChecked) territoryStones.add(new Stone(x, y, gridWidth, gridWidth));
         			drawGrid(gc);
         		}
 			}
-        	
         });
         
         drawGrid(gc);
@@ -220,7 +219,7 @@ public class App extends Application {
 					System.err.println("chat message error");
 				}
         	}
-        	
+
         	messages.appendText(message + "\n");
         });
         
@@ -243,10 +242,9 @@ public class App extends Application {
         playersIcons.setAlignment(Pos.CENTER);
         
         Button passButton = new Button("PASS");
-        Button resignButton = new Button("RESIGN");
+        resignButton = new Button("RESIGN");
         territory.setVisible(false);
         territory.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-
 			@Override
 			public void handle(MouseEvent arg0) {
 				String message = "TERRITORY_" + mark + " ";
@@ -261,24 +259,23 @@ public class App extends Application {
 				}
 				territoryChecked = true;
 				territory.setVisible(false);
-			}});
+			}
+		});
+        
         HBox bottomButoons = new HBox(100, passButton, resignButton, territory);
         bottomButoons.setAlignment(Pos.CENTER);
         borderPane.setBottom(bottomButoons);
         HBox.setMargin(passButton, new Insets(15, 0, 15, 0));
         
         passButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-
 			@Override
 			public void handle(MouseEvent arg0) {
 				try {
 					if(!botFlag) connection.send("PASS");
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-        	
         });
         
         HBox pointsPanel = new HBox(50, pB, pW);
@@ -288,13 +285,32 @@ public class App extends Application {
         
         VBox infoPanel = new VBox(20, playersLabels, playersIcons, pointsPanel);
         borderPane.setLeft(infoPanel);
+        
+        return new Scene(borderPane);
+    }
+    
+    /*
+     * Sets gui, counts measurements for grid and icons
+     */
+    @Override
+    public void start(Stage primaryStage) {
+    	Rectangle2D screen = Screen.getPrimary().getBounds();
+    	double firstHeight = screen.getHeight() * 0.6;
+    	gridWidth = (int) firstHeight/20;
+    	height = gridWidth * 20;
 
-        Scene gameScene = new Scene(borderPane);
+        blackStone = new Image("img/blackStone.png", gridWidth, gridWidth, false, false);
+        whiteStone = new Image("img/whiteStone.png", gridWidth, gridWidth, false, false);
+    	
+    	primaryStage.getIcons().add(new Image("img/icon.jpg"));
+        primaryStage.setTitle("Go Game");
+        primaryStage.setResizable(false);
+        
+        Scene gameScene = makeGameScene();
         
         Scene menuScene = makeMenuScene();
         
         resignButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-
 			@Override
 			public void handle(MouseEvent arg0) {
 				try {
@@ -309,21 +325,19 @@ public class App extends Application {
 					} else {
 						adapter = null;
 						bot = null;
-						blackStones.clear();;
+						blackStones.clear();
 						whiteStones.clear();
 						botFlag = false;
 					}		
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
 				primaryStage.setScene(menuScene);
 			}
         	
         });
         
         vsPlayerButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-
 			@Override
 			public void handle(MouseEvent arg0) {
 				primaryStage.setScene(gameScene);
@@ -334,12 +348,9 @@ public class App extends Application {
 
 				}
 			}
-		
-        	
         });
         
         vsBotButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-
 			@Override
 			public void handle(MouseEvent arg0) {
 				primaryStage.setScene(gameScene);
@@ -348,16 +359,12 @@ public class App extends Application {
 				bot = new JustPut(adapter);
 				botFlag = true;
 			}
-		
-        	
         });
         
         quitButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-
 			@Override
 			public void handle(MouseEvent event) {
 				Platform.exit();
-				
 			}
         	
         });
@@ -369,7 +376,6 @@ public class App extends Application {
 					connection.closeConnection();
     			}
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
         	Platform.exit();
@@ -381,6 +387,9 @@ public class App extends Application {
         primaryStage.show();
     }
 
+    /*
+     * Draws components on canvas
+     */
     private void drawGrid(GraphicsContext gc) {
     	gc.setFill(Color.BLACK);
     	gc.drawImage(new Image("img/go_board.jpg", height, height, false, false), 0, 0);
@@ -418,25 +427,28 @@ public class App extends Application {
         		}
         	}
         }
-        for(Stone s: territoryStones) {
-        	gc.setFill(Color.RED);
-        	gc.fillOval(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
-        }
         for(Stone s: enemyStones) {
         	gc.setFill(Color.BLUE);
         	gc.fillOval(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
         }
+        for(Stone s: territoryStones) {
+        	gc.setFill(Color.RED);
+        	gc.fillOval(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
+        }
         for(Stone s: blackStones) {
         	gc.setFill(Color.BLACK);
-        	gc.fillOval(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
+        	gc.drawImage(blackStone, gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth);
         }
         for(Stone s: whiteStones) {
         	gc.setFill(Color.WHITE);
-        	gc.fillOval(gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth, s.getW(), s.getH());
+        	gc.drawImage(whiteStone, gridWidth/2 + s.getX()*gridWidth, gridWidth/2 + s.getY()*gridWidth);
         }
         
     }
 	
+    /*
+     * Creates client, sets behaviour to server messages
+     */
 	private Client createClient() {
 		try {
 			return new Client("localhost", 8901, data -> {
@@ -474,7 +486,6 @@ public class App extends Application {
 			        		try {
 								connection.send("WIN");
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 			        	}
@@ -511,6 +522,9 @@ public class App extends Application {
 		}
 	}
 	
+	/*
+	 * Add stones for counting territories
+	 */
 	private void updateStones() {
 		String[] point = null;
     	for(int i=0; i<blackPoints.length;i++) {
@@ -531,6 +545,9 @@ public class App extends Application {
     	}
 	}
 	
+	/*
+	 * Updates players moves on board
+	 */
 	private void updatePoints(String points) {
 		int endOfBlackPoints = points.indexOf('B') - 1;
 		blackPoints = points.substring(0, endOfBlackPoints).split(";");

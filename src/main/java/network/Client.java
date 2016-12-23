@@ -8,6 +8,9 @@ public class Client extends NetworkConnection {
 	private String ip;
 	private int port;
 	
+	/*
+	 * Creates client on specific ip and port
+	 */
 	public Client(String ip, int port, Consumer<Serializable> onReceiveCallback) throws Exception {
 		super(onReceiveCallback);
 		this.ip = ip;

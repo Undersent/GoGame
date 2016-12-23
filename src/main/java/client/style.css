@@ -24,9 +24,7 @@
 }
 
 #menu {
-	-fx-background-image: url("../img/go_board.jpg");
-	-fx-background-size: 370, 370;
-	-fx-background-repeat: no-repeat;
+	-fx-background-color: #c8c8c8;
 }
 
 .root { 

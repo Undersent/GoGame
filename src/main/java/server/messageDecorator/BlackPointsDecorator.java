@@ -20,7 +20,7 @@ public class BlackPointsDecorator extends TextDecorator {
 
 	private void setMessage() {
 		output.println("BLACK_POINTS "+ blackCaptured);
-		System.out.println("BLACK_POINTS"+ blackCaptured);
+		System.out.println("BLACK_POINTS "+ blackCaptured);
 
 	}
 }
