@@ -25,7 +25,7 @@ public class JustPut implements Strategy {
 		StoneColor stoneColor = null;
 	//	LinkedList<PointOnBoard> coloredPoints = new LinkedList<PointOnBoard>();
 	//	coloredPoints = adapter.getAllPoints();
-		System.out.println(adapter.getAllPoints().toString());
+		//System.out.println(adapter.getAllPoints().toString());
 		for(PointOnBoard point : adapter.getAllPoints()){
 			stoneColor = adapter.getColor(point);
 			if (stoneColor.equals(GameController.StoneColor.NONE)) {
@@ -38,5 +38,4 @@ public class JustPut implements Strategy {
 			}
 		}
 	}
-
 

@@ -1,9 +1,9 @@
 package network;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Serializable;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.function.Consumer;
 
@@ -12,44 +12,64 @@ public abstract class NetworkConnection {
 	private ConnectionThread connThread = new ConnectionThread();
 	private Consumer<Serializable> onReceiveCallback;
 	
+	/*
+	 * Sign consumer
+	 */
 	public NetworkConnection(Consumer<Serializable> onReceiveCallback) throws Exception {
 		this.onReceiveCallback = onReceiveCallback;
 		connThread.setDaemon(true);
 	}
 	
-	public void startConnection() throws Exception {
+	/*
+	 * Starts connection thread
+	 */
+	public void startConnection() {
 		connThread.start();
 	}
 	
+	/*
+	 * Sends data
+	 */
 	public void send(Serializable data) throws Exception {
-		connThread.out.writeObject(data);
+		connThread.out.println(data);
 	}
 	
+	/*
+	 * Closes connection
+	 */
 	public void closeConnection() throws Exception {
 		connThread.socket.close();
 	}
-
-	protected abstract boolean isServer();
+	
+	/*
+	 * Returns ip
+	 */
 	protected abstract String getIP();
+	
+	/*
+	 * Returns port
+	 */
 	protected abstract int getPort();
 	
+	/*
+	 * Custom thread class for connection
+	 */
 	private class ConnectionThread extends Thread {
 		private Socket socket;
-		private ObjectOutputStream out;
+		private PrintWriter out;
 		
 		@Override
 		public void run() {
-			try (ServerSocket server = isServer() ? new ServerSocket(getPort()) : null;
-					Socket socket = isServer() ? server.accept() : new Socket(getIP(), getPort());
-					ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-					ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+			try (Socket socket =  new Socket(getIP(), getPort());
+					PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+					BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 				
 				this.socket = socket;
 				this.out = out;
 				socket.setTcpNoDelay(true);
 				
 				while(true) {
-					Serializable data = (Serializable) in.readObject();
+					Serializable data = (Serializable) in.readLine();
 					onReceiveCallback.accept(data);
 				}
 			} catch(Exception e) {

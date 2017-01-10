@@ -25,8 +25,11 @@ public class AdapterTest {
 	
 	@Test
 	public void test() {
+		assertEquals(adapter.getPlayer(), 'B');
 		adapter.playOnPoint(0, 0);
+		assertEquals(adapter.getPlayer(), 'W');
 		adapter.playOnPoint(1, 1);
+		assertEquals(adapter.getPlayer(), 'B');
 		adapter.playOnPoint(2, 2);
 
 

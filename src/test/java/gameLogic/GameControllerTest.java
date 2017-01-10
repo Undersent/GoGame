@@ -8,8 +8,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import gameLogic.GameController.StoneColor;
-
 public class GameControllerTest {
 	 private int size;
 	 private  GameController gameController;

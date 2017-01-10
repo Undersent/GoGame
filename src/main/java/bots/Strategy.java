@@ -1,7 +1,5 @@
 package bots;
 
-import gameLogic.PointOnBoard;
-
 /**
  * 
  * @author rafal
